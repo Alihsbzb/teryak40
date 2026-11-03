@@ -333,6 +333,20 @@
       .pill.on { background: var(--accent-soft); color: var(--accent-strong); }
       @media (prefers-color-scheme: dark) { .pill.on { color: var(--accent-ink); } }
       .pill.off { background: var(--off-soft); color: var(--off); }
+      .expiry {
+        display: inline-flex; align-items: center; gap: 6px;
+        font-size: .8rem; font-weight: 800; border-radius: 999px; padding: 3px 11px;
+        white-space: nowrap; min-height: 27px;
+      }
+      .expiry::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; flex: none; }
+      .expiry.none { background: var(--off-soft); color: var(--off); }
+      .expiry.ok { background: var(--accent-soft); color: var(--accent-strong); }
+      @media (prefers-color-scheme: dark) { .expiry.ok { color: var(--accent-ink); } }
+      .expiry.soon { background: var(--warn-soft); color: var(--warn); }
+      .expiry.dead { background: var(--danger-soft); color: var(--danger); }
+      .expiry-sub { display: block; color: var(--faint); font-size: .74rem; margin-top: 3px; }
+      tbody tr.is-expired { background: var(--danger-soft); }
+      tbody tr.is-expired:hover { background: var(--danger-soft); }
       .hwid {
         font-family: var(--mono); direction: ltr; text-align: left;
         font-size: .77rem; word-break: break-all; display: block; max-width: 190px; color: var(--muted);
@@ -499,7 +513,7 @@
           </div>
           <div class="spacer"></div>
           <span class="conn" id="conn-pill"><span class="dot"></span><span id="conn-text">در حال بررسی اتصال…</span><span class="ms" id="conn-ms"></span></span>
-          <button class="switch" id="btn-autorefresh" type="button" aria-pressed="false"><span class="track"></span>به‌روزرسانی خودکار</button>
+          <button class="switch on" id="btn-autorefresh" type="button" aria-pressed="true"><span class="track"></span>به‌روزرسانی خودکار</button>
           <button class="btn" id="btn-refresh" type="button">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
             تازه‌سازی
@@ -572,6 +586,19 @@
                     </select>
                   </label>
                 </div>
+                <div class="grid-2">
+                  <label class="field">
+                    <span>مدت لایسنس</span>
+                    <select id="new-duration">
+                      <option value="0" selected>بدون انقضا (مادام‌العمر)</option>
+                      <option value="1">۱ ساعته</option>
+                      <option value="24">۲۴ ساعته (۱ روز)</option>
+                      <option value="168">۷ روزه</option>
+                      <option value="720">۳۰ روزه</option>
+                    </select>
+                    <small>مدت از لحظه ساخت حساب می‌شود و تاریخ پایان در ستون expires_at ذخیره می‌شود.</small>
+                  </label>
+                </div>
                 <div class="create-actions">
                   <button type="submit" class="btn primary" id="btn-create">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
@@ -591,6 +618,19 @@
                   <label class="field">
                     <span>توضیح (اختیاری)</span>
                     <input type="text" id="custom-note" placeholder="مثلاً: مشتری ویژه" />
+                  </label>
+                </div>
+                <div class="grid-2">
+                  <label class="field">
+                    <span>مدت لایسنس</span>
+                    <select id="custom-duration">
+                      <option value="0" selected>بدون انقضا (مادام‌العمر)</option>
+                      <option value="1">۱ ساعته</option>
+                      <option value="24">۲۴ ساعته (۱ روز)</option>
+                      <option value="168">۷ روزه</option>
+                      <option value="720">۳۰ روزه</option>
+                    </select>
+                    <small>مدت از لحظه ساخت حساب می‌شود.</small>
                   </label>
                 </div>
                 <div class="create-actions">
@@ -616,6 +656,19 @@
                     <input type="text" id="bulk-note" placeholder="مثلاً: سری فروش آبان" />
                   </label>
                 </div>
+                <div class="grid-2">
+                  <label class="field">
+                    <span>مدت همه لایسنس‌ها</span>
+                    <select id="bulk-duration">
+                      <option value="0" selected>بدون انقضا (مادام‌العمر)</option>
+                      <option value="1">۱ ساعته</option>
+                      <option value="24">۲۴ ساعته (۱ روز)</option>
+                      <option value="168">۷ روزه</option>
+                      <option value="720">۳۰ روزه</option>
+                    </select>
+                    <small>همین مدت و یک زمان انقضای یکسان روی همه کلیدهای این سری اعمال می‌شود.</small>
+                  </label>
+                </div>
                 <div class="create-actions">
                   <button type="submit" class="btn primary" id="btn-create-bulk">ساخت گروهی</button>
                   <span class="updated-at">همه کلیدها با یک درخواست در دیتابیس ثبت می‌شوند.</span>
@@ -624,6 +677,18 @@
 
               <!-- ورود از فایل -->
               <div id="tab-import" class="tabpane hidden">
+                <div class="grid-2">
+                  <label class="field">
+                    <span>مدت همه کلیدهای واردشده</span>
+                    <select id="import-duration">
+                      <option value="0" selected>بدون انقضا (مادام‌العمر)</option>
+                      <option value="1">۱ ساعته</option>
+                      <option value="24">۲۴ ساعته (۱ روز)</option>
+                      <option value="168">۷ روزه</option>
+                      <option value="720">۳۰ روزه</option>
+                    </select>
+                  </label>
+                </div>
                 <label class="field">
                   <span>متن کلیدها — هر خط یک کلید (بعد از ویرگول می‌توانید توضیح بنویسید)</span>
                   <textarea id="import-text" class="ltr" placeholder="KEY-1111, first customer&#10;KEY-2222, second customer" dir="ltr"></textarea>
@@ -704,6 +769,7 @@
                       <th style="width:36px"><button type="button" class="selbtn" id="sel-page" title="انتخاب همه این صفحه" aria-label="انتخاب همه این صفحه"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></button></th>
                       <th>کلید لایسنس</th>
                       <th>وضعیت</th>
+                      <th>انقضا</th>
                       <th>سیستم قفل‌شده</th>
                       <th>توضیح</th>
                       <th>تاریخ ساخت</th>
@@ -870,6 +936,7 @@
       function apiErrorMessage(data, status) {
         if (status === 401) return "نشست ورود منقضی شده است. از حساب خارج شوید و دوباره وارد شوید.";
         if (data && data.message) {
+          if (/expires_at/i.test(data.message)) return "ستون expires_at در جدول licenses وجود ندارد؛ اول باید این ستون (از نوع timestamptz) را در سوپابیس بسازید.";
           if (/hwid/i.test(data.message)) return "ستون hwid در جدول licenses وجود ندارد. ساختار جدول دیتابیس کامل نیست.";
           if (data.code === "23505") return "این کلید قبلاً ساخته شده است.";
           if (/permission|row-level|policy/i.test(data.message)) return "حساب شما اجازه این کار را ندارد. مطمئن شوید با حساب مدیر وارد شده‌اید و سیاست‌های دسترسی دیتابیس برای کاربران واردشده فعال است.";
@@ -947,6 +1014,46 @@
       }
       function dayKey(d) { return d.getFullYear() + "-" + pad2(d.getMonth() + 1) + "-" + pad2(d.getDate()); }
 
+      /* ---------- مدت و انقضا ---------- */
+      function durationHoursOf(id) {
+        var el = $(id);
+        var v = el ? parseInt(el.value, 10) : 0;
+        return isNaN(v) || v < 0 ? 0 : v;
+      }
+      function expiresAtForHours(hours) {
+        return hours > 0 ? new Date(Date.now() + hours * 3600000).toISOString() : null;
+      }
+      function durationName(hours) {
+        return hours === 1 ? "۱ ساعته" : hours === 24 ? "۲۴ ساعته" : hours === 168 ? "۷ روزه" : hours === 720 ? "۳۰ روزه" : "بدون انقضا";
+      }
+      function expiryTime(lic) {
+        if (!lic || !lic.expires_at) return null;
+        var t = new Date(lic.expires_at).getTime();
+        return isNaN(t) ? null : t;
+      }
+      function isExpired(lic) {
+        var t = expiryTime(lic);
+        return t !== null && t <= Date.now();
+      }
+      function expiryInfo(lic) {
+        var t = expiryTime(lic);
+        if (t === null) return { cls: "none", text: "مادام‌العمر", sub: "بدون انقضا" };
+        var diff = t - Date.now();
+        if (diff <= 0) return { cls: "dead", text: "منقضی شده", sub: "پایان: " + fmtDateTime(lic.expires_at) };
+        var mins = Math.ceil(diff / 60000);
+        if (mins < 60) return { cls: "soon", text: faNum(mins) + " دقیقه مانده", sub: "تا " + fmtDateTime(lic.expires_at) };
+        var hours = Math.floor(mins / 60), remM = mins % 60;
+        if (hours < 24) {
+          return { cls: "soon", text: faNum(hours) + " ساعت" + (remM ? " و " + faNum(remM) + " دقیقه" : "") + " مانده", sub: "تا " + fmtDateTime(lic.expires_at) };
+        }
+        var days = Math.floor(hours / 24), remH = hours % 24;
+        return { cls: days <= 2 ? "soon" : "ok", text: faNum(days) + " روز" + (remH ? " و " + faNum(remH) + " ساعت" : "") + " مانده", sub: "تا " + fmtDateTime(lic.expires_at) };
+      }
+      function expiryText(lic) {
+        var info = expiryInfo(lic);
+        return expiryTime(lic) === null ? "بدون انقضا (مادام‌العمر)" : fmtDateTime(lic.expires_at) + " — " + info.text;
+      }
+
       /* ---------- کپی و دانلود ---------- */
       function copyText(text, okMsg) {
         function done() { toast(okMsg || "کپی شد"); }
@@ -979,9 +1086,9 @@
         return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v;
       }
       function toCSV(rows) {
-        var lines = ["key,is_active,hwid,note,created_at"];
+        var lines = ["key,is_active,hwid,note,expires_at,created_at"];
         rows.forEach(function (l) {
-          lines.push([csvCell(l.key), l.is_active ? "true" : "false", csvCell(l.hwid), csvCell(l.note), csvCell(l.created_at)].join(","));
+          lines.push([csvCell(l.key), l.is_active ? "true" : "false", csvCell(l.hwid), csvCell(l.note), csvCell(l.expires_at), csvCell(l.created_at)].join(","));
         });
         return "﻿" + lines.join("\n");
       }
@@ -1148,19 +1255,22 @@
 
         $("lic-body").innerHTML = pageRows.map(function (lic) {
           var isSel = !!selected[lic.id];
+          var expired = isExpired(lic);
+          var exp = expiryInfo(lic);
           var statusPill = lic.is_active
             ? '<button type="button" class="pill on" data-act="toggle" data-id="' + lic.id + '" title="برای غیرفعال کردن بزنید">فعال</button>'
             : '<button type="button" class="pill off" data-act="toggle" data-id="' + lic.id + '" title="برای فعال کردن بزنید">غیرفعال</button>';
           var hwidCell = lic.hwid
             ? '<span class="hwid" title="' + esc(lic.hwid) + '">' + esc(lic.hwid) + "</span>"
             : '<span class="none-txt">هنوز روی سیستمی فعال نشده</span>';
-          return '<tr class="' + (isSel ? "sel" : "") + '">' +
+          return '<tr class="' + (isSel ? "sel" : "") + (expired ? " is-expired" : "") + '">' +
             '<td class="selcell" data-label=""><button type="button" class="selbtn' + (isSel ? " on" : "") + '" data-act="sel" data-id="' + lic.id + '" aria-label="انتخاب ردیف">' + CHECK_SVG + "</button></td>" +
             '<td data-label="کلید لایسنس"><div class="keywrap">' +
               '<span class="keytext" data-act="detail" data-id="' + lic.id + '" title="دیدن جزئیات">' + esc(lic.key) + "</span>" +
               '<button type="button" class="iconbtn" data-act="copy" data-key="' + esc(lic.key) + '" title="کپی کلید" aria-label="کپی کلید">' + COPY_SVG + "</button>" +
             "</div></td>" +
             '<td data-label="وضعیت">' + statusPill + "</td>" +
+            '<td data-label="انقضا"><span class="expiry ' + exp.cls + '">' + esc(exp.text) + '</span><span class="expiry-sub">' + esc(exp.sub) + "</span></td>" +
             '<td data-label="سیستم قفل‌شده">' + hwidCell + "</td>" +
             '<td class="notecell" data-label="توضیح">' + (lic.note ? esc(lic.note) : '<span class="none-txt">—</span>') + "</td>" +
             '<td class="datecell" data-label="تاریخ ساخت">' + fmtDate(lic.created_at) + "<small>" + esc(timeAgo(lic.created_at)) + "</small></td>" +
@@ -1233,6 +1343,7 @@
       function openDetail(lic) {
         if (!lic) return;
         var statusTxt = lic.is_active ? "فعال" : "غیرفعال";
+        if (isExpired(lic)) statusTxt += " — اما منقضی شده و قابل استفاده نیست";
         var hw = lic.hwid
           ? '<span class="mono" dir="ltr" style="font-size:.8rem">' + esc(lic.hwid) + '</span><button type="button" class="iconbtn" id="d-copy-hwid" title="کپی شناسه سیستم">' + COPY_SVG + "</button>"
           : '<span class="none-txt">هنوز روی هیچ سیستمی فعال نشده است</span>';
@@ -1240,6 +1351,7 @@
           '<dl class="detail-grid">' +
           "<dt>کلید</dt><dd><span class='keytext'>" + esc(lic.key) + '</span><button type="button" class="iconbtn" id="d-copy-key" title="کپی کلید">' + COPY_SVG + "</button></dd>" +
           "<dt>وضعیت</dt><dd>" + statusTxt + "</dd>" +
+          "<dt>انقضا</dt><dd>" + esc(expiryText(lic)) + "</dd>" +
           "<dt>سیستم قفل‌شده</dt><dd>" + hw + "</dd>" +
           "<dt>توضیح</dt><dd>" + (lic.note ? esc(lic.note) : "—") + "</dd>" +
           "<dt>تاریخ ساخت</dt><dd>" + fmtDateTime(lic.created_at) + " (" + esc(timeAgo(lic.created_at)) + ")</dd>" +
@@ -1248,7 +1360,7 @@
           '<div class="row" style="display:flex; gap:10px; flex-wrap:wrap; margin-top:16px">' +
           '<button type="button" class="btn" id="d-toggle">' + (lic.is_active ? "غیرفعال کردن" : "فعال کردن") + "</button>" +
           (lic.hwid ? '<button type="button" class="btn" id="d-release">آزادسازی سیستم</button>' : "") +
-          '<button type="button" class="btn" id="d-edit">ویرایش</button>' +
+          '<button type="button" class="btn" id="d-edit">ویرایش و تمدید</button>' +
           '<button type="button" class="btn danger" id="d-del">حذف</button>' +
           "</div>", true);
         $("d-copy-key").addEventListener("click", function () { copyText(lic.key, "کلید کپی شد"); });
@@ -1284,6 +1396,20 @@
           '<label class="field"><span>شناسه سیستم قفل‌شده (HWID)</span>' +
           '<input type="text" id="e-hwid" class="ltr" value="' + esc(lic.hwid || "") + '" placeholder="خالی = روی هیچ سیستمی قفل نیست" />' +
           "<small style='color:var(--muted); font-size:.8rem'>اگر شناسه سیستم مشتری را دستی وارد کنید، لایسنس از همان لحظه فقط روی آن سیستم کار می‌کند. خالی بگذارید تا با اولین اجرا قفل شود.</small></label>" +
+          '<label class="field"><span>مدت / انقضا</span>' +
+          '<select id="e-duration">' +
+          '<option value="">بدون تغییر</option>' +
+          '<option value="none">بدون انقضا (مادام‌العمر)</option>' +
+          '<option value="1">از همین حالا: ۱ ساعت</option>' +
+          '<option value="24">از همین حالا: ۲۴ ساعت</option>' +
+          '<option value="168">از همین حالا: ۷ روز</option>' +
+          '<option value="720">از همین حالا: ۳۰ روز</option>' +
+          '<option value="add1">تمدید: ۱ ساعت اضافه شود</option>' +
+          '<option value="add24">تمدید: ۲۴ ساعت اضافه شود</option>' +
+          '<option value="add168">تمدید: ۷ روز اضافه شود</option>' +
+          '<option value="add720">تمدید: ۳۰ روز اضافه شود</option>' +
+          "</select>" +
+          "<small style='color:var(--muted); font-size:.8rem'>انقضای فعلی: " + esc(expiryText(lic)) + ". گزینه‌های «از همین حالا» مدت را از نو شروع می‌کنند؛ «تمدید» به زمان باقی‌مانده اضافه می‌کند و اگر لایسنس منقضی شده باشد، از همین حالا حساب می‌شود.</small></label>" +
           '<label class="field"><span>وضعیت</span><br/>' +
           '<span class="seg" id="e-active-seg">' +
           '<button type="button" data-v="1">فعال</button><button type="button" data-v="0">غیرفعال</button></span></label>' +
@@ -1303,10 +1429,23 @@
           var btn = this; btn.disabled = true; btn.textContent = "در حال ذخیره…";
           var newHwid = $("e-hwid").value.trim();
           var body = { note: $("e-note").value.trim() || null, hwid: newHwid || null, is_active: active };
+          var durMode = $("e-duration").value;
+          if (durMode === "none") {
+            body.expires_at = null;
+          } else if (durMode.indexOf("add") === 0) {
+            var addHours = parseInt(durMode.slice(3), 10) || 0;
+            var base = expiryTime(lic);
+            if (base === null || base < Date.now()) base = Date.now();
+            body.expires_at = new Date(base + addHours * 3600000).toISOString();
+          } else if (durMode) {
+            body.expires_at = expiresAtForHours(parseInt(durMode, 10) || 0);
+          }
           patchLic(lic.id, body).then(function () {
             lic.note = body.note; lic.hwid = body.hwid; lic.is_active = active;
+            if (Object.prototype.hasOwnProperty.call(body, "expires_at")) lic.expires_at = body.expires_at;
             renderOverview(); renderList(); closeModal();
             logActivity("ویرایش شد: " + lic.key);
+            if (durMode) logActivity("انقضای لایسنس به‌روزرسانی شد: " + lic.key, "amber");
             toast("تغییرات ذخیره شد");
           }).catch(function (e) {
             btn.disabled = false; btn.textContent = "ذخیره تغییرات";
@@ -1373,10 +1512,10 @@
           var nk = genKey("");
           api("", {
             method: "POST",
-            body: { key: nk, is_active: lic.is_active, note: lic.note || null },
+            body: { key: nk, is_active: lic.is_active, note: lic.note || null, expires_at: lic.expires_at || null },
             headers: { "Prefer": "return=representation" }
           }).then(function (data) {
-            var row = Array.isArray(data) && data[0] ? data[0] : { key: nk, is_active: lic.is_active, note: lic.note || null, hwid: null, created_at: new Date().toISOString() };
+            var row = Array.isArray(data) && data[0] ? data[0] : { key: nk, is_active: lic.is_active, note: lic.note || null, expires_at: lic.expires_at || null, hwid: null, created_at: new Date().toISOString() };
             licenses.unshift(row);
             renderOverview(); renderList();
             showCreated([nk], "کپی از لایسنس " + lic.key + " ساخته شد:");
@@ -1527,16 +1666,18 @@
           var key = uniqueKey("");
           var note = $("new-note").value.trim();
           var active = $("new-active").value === "1";
+          var hours = durationHoursOf("new-duration");
+          var expiresAt = expiresAtForHours(hours);
           return api("", {
             method: "POST",
-            body: { key: key, is_active: active, note: note || null },
+            body: { key: key, is_active: active, note: note || null, expires_at: expiresAt },
             headers: { "Prefer": "return=representation" }
           }).then(function (data) {
-            var row = Array.isArray(data) && data[0] ? data[0] : { key: key, is_active: active, note: note || null, hwid: null, created_at: new Date().toISOString() };
-            afterCreate([row]);
+            var row = Array.isArray(data) && data[0] ? data[0] : { key: key, is_active: active, note: note || null, expires_at: expiresAt, hwid: null, created_at: new Date().toISOString() };
+            afterCreate([row], "لایسنس " + durationName(hours) + " ساخته شد — این کلید را به مشتری بدهید:");
             $("new-note").value = "";
-            logActivity("لایسنس ساخته شد: " + key);
-            toast("لایسنس ساخته شد");
+            logActivity("لایسنس " + durationName(hours) + " ساخته شد: " + key);
+            toast("لایسنس " + durationName(hours) + " ساخته شد");
           }).catch(function (err) { toast(err.message, true); });
         });
       });
@@ -1556,16 +1697,18 @@
         var btn = $("btn-create-custom");
         busy(btn, "در حال ساخت…", function () {
           var note = $("custom-note").value.trim();
+          var hours = durationHoursOf("custom-duration");
+          var expiresAt = expiresAtForHours(hours);
           return api("", {
             method: "POST",
-            body: { key: key, is_active: true, note: note || null },
+            body: { key: key, is_active: true, note: note || null, expires_at: expiresAt },
             headers: { "Prefer": "return=representation" }
           }).then(function (data) {
-            var row = Array.isArray(data) && data[0] ? data[0] : { key: key, is_active: true, note: note || null, hwid: null, created_at: new Date().toISOString() };
-            afterCreate([row]);
+            var row = Array.isArray(data) && data[0] ? data[0] : { key: key, is_active: true, note: note || null, expires_at: expiresAt, hwid: null, created_at: new Date().toISOString() };
+            afterCreate([row], "لایسنس " + durationName(hours) + " ساخته شد — این کلید را به مشتری بدهید:");
             $("custom-key").value = ""; $("custom-note").value = "";
-            logActivity("لایسنس دلخواه ساخته شد: " + key);
-            toast("لایسنس ساخته شد");
+            logActivity("لایسنس دلخواه " + durationName(hours) + " ساخته شد: " + key);
+            toast("لایسنس " + durationName(hours) + " ساخته شد");
           }).catch(function (err) { toast(err.message, true); });
         });
       });
@@ -1577,12 +1720,14 @@
         if (count > 100) { toast("در هر بار حداکثر ۱۰۰ لایسنس می‌توانید بسازید", true); return; }
         var prefix = $("bulk-prefix").value.trim().toUpperCase().replace(/[^A-Z0-9]/g, "");
         var note = $("bulk-note").value.trim();
+        var hours = durationHoursOf("bulk-duration");
+        var expiresAt = expiresAtForHours(hours);
         var seen = {}, body = [], i;
         for (i = 0; i < count; i++) {
           var k = uniqueKey(prefix);
           while (seen[k]) k = uniqueKey(prefix);
           seen[k] = true;
-          body.push({ key: k, is_active: true, note: note || null });
+          body.push({ key: k, is_active: true, note: note || null, expires_at: expiresAt });
         }
         var btn = $("btn-create-bulk");
         busy(btn, "در حال ساخت " + faNum(count) + " لایسنس…", function () {
@@ -1591,16 +1736,16 @@
             headers: { "Prefer": "return=representation" }
           }).then(function (data) {
             var rows = Array.isArray(data) && data.length ? data : body.map(function (b) {
-              return { key: b.key, is_active: true, note: b.note, hwid: null, created_at: new Date().toISOString() };
+              return { key: b.key, is_active: true, note: b.note, expires_at: b.expires_at, hwid: null, created_at: new Date().toISOString() };
             });
-            afterCreate(rows, faNum(rows.length) + " لایسنس گروهی ساخته شد — کلیدها:");
-            logActivity(faNum(rows.length) + " لایسنس به‌صورت گروهی ساخته شد");
+            afterCreate(rows, faNum(rows.length) + " لایسنس گروهی " + durationName(hours) + " ساخته شد — کلیدها:");
+            logActivity(faNum(rows.length) + " لایسنس " + durationName(hours) + " به‌صورت گروهی ساخته شد");
             toast(faNum(rows.length) + " لایسنس ساخته شد");
           }).catch(function (err) { toast(err.message, true); });
         });
       });
       /* ورود از فایل / متن */
-      function parseImport(text) {
+      function parseImport(text, expiresAt) {
         var out = [], seen = {};
         text.split(/\r?\n/).forEach(function (line) {
           line = line.trim();
@@ -1613,12 +1758,13 @@
           if (seen[key]) return;
           seen[key] = true;
           if (licenses.some(function (l) { return l.key === key; })) return;
-          out.push({ key: key, is_active: true, note: note || null });
+          out.push({ key: key, is_active: true, note: note || null, expires_at: expiresAt || null });
         });
         return out;
       }
       $("btn-import").addEventListener("click", function () {
-        var rows = parseImport($("import-text").value);
+        var importHours = durationHoursOf("import-duration");
+        var rows = parseImport($("import-text").value, expiresAtForHours(importHours));
         var box = $("import-result");
         if (!rows.length) {
           box.className = "form-error";
@@ -1635,9 +1781,9 @@
             inserted.forEach(function (r) { licenses.unshift(r); });
             renderOverview(); renderList();
             box.className = "form-ok";
-            box.textContent = faNum(inserted.length) + " کلید با موفقیت وارد شد" +
+            box.textContent = faNum(inserted.length) + " کلید " + durationName(importHours) + " با موفقیت وارد شد" +
               (rows.length !== inserted.length ? " (" + faNum(rows.length - inserted.length) + " کلید تکراری رد شد)" : "") + ".";
-            logActivity(faNum(inserted.length) + " لایسنس از فایل وارد شد");
+            logActivity(faNum(inserted.length) + " لایسنس " + durationName(importHours) + " از فایل وارد شد");
             toast("وارد کردن انجام شد");
           }).catch(function (err) {
             box.className = "form-error";
@@ -1696,6 +1842,12 @@
                 "<p>برنامه مشتری دقیقاً همین پیام را می‌بیند و بسته می‌شود؛ چنین کلیدی در دیتابیس وجود ندارد.</p></div>";
               return;
             }
+            if (isExpired(lic)) {
+              box.innerHTML = '<div class="verdict bad"><h4>لایسنس منقضی شده است</h4>' +
+                "<p>مدت این لایسنس تمام شده و نامعتبر است؛ برنامه مشتری با آن باز نمی‌شود. از بخش ویرایش می‌توانید آن را تمدید کنید.</p>" +
+                verdictDl(lic) + "</div>";
+              return;
+            }
             if (!lic.is_active) {
               box.innerHTML = '<div class="verdict bad"><h4>لایسنس غیرفعال است</h4>' +
                 "<p>کلید در دیتابیس هست ولی غیرفعال شده؛ برنامه مشتری باز نمی‌شود.</p>" +
@@ -1705,7 +1857,8 @@
             box.innerHTML = '<div class="verdict good"><h4>لایسنس معتبر است — برنامه باز می‌شود</h4>' +
               "<p>" + (lic.hwid
                 ? "این لایسنس روی یک سیستم قفل شده و فقط روی همان سیستم کار می‌کند."
-                : "این لایسنس هنوز روی سیستمی قفل نشده؛ با اولین اجرای مشتری روی سیستم او قفل می‌شود.") + "</p>" +
+                : "این لایسنس هنوز روی سیستمی قفل نشده؛ با اولین اجرای مشتری روی سیستم او قفل می‌شود.") +
+                (expiryTime(lic) !== null ? " مهلت آن: " + esc(expiryInfo(lic).text) + "." : "") + "</p>" +
               verdictDl(lic) + "</div>";
           })
           .catch(function (err) {
@@ -1716,6 +1869,7 @@
       });
       function verdictDl(lic) {
         return "<dl><dt>توضیح</dt><dd>" + (lic.note ? esc(lic.note) : "—") + "</dd>" +
+          "<dt>انقضا</dt><dd>" + esc(expiryText(lic)) + "</dd>" +
           "<dt>سیستم</dt><dd>" + (lic.hwid ? '<span class="mono" dir="ltr" style="font-size:.78rem">' + esc(lic.hwid) + "</span>" : "قفل نشده") + "</dd>" +
           "<dt>تاریخ ساخت</dt><dd>" + fmtDate(lic.created_at) + "</dd></dl>";
       }
@@ -1753,19 +1907,38 @@
         pingConn();
         loadLicenses();
       });
-      $("btn-autorefresh").addEventListener("click", function () {
-        var on = this.classList.toggle("on");
-        this.setAttribute("aria-pressed", on ? "true" : "false");
-        clearInterval(autoTimer); autoTimer = null;
+      function stopAutoRefresh() {
+        clearInterval(autoTimer);
+        autoTimer = null;
+      }
+      function startAutoRefresh() {
+        stopAutoRefresh();
+        if (!session) return;
+        if ($("view-main").classList.contains("hidden")) return;
+        if (!$("btn-autorefresh").classList.contains("on")) return;
+        autoTimer = setInterval(function () {
+          if (document.hidden) return;
+          if (!$("modal-back").classList.contains("hidden")) return;
+          if ($("view-main").classList.contains("hidden")) return;
+          if (!session) return;
+          loadLicenses(true);
+        }, 10000);
+      }
+      function setAutoRefresh(on, silent) {
+        var btn = $("btn-autorefresh");
+        btn.classList.toggle("on", !!on);
+        btn.setAttribute("aria-pressed", on ? "true" : "false");
         if (on) {
-          autoTimer = setInterval(function () {
-            if (document.hidden) return;
-            if (!$("modal-back").classList.contains("hidden")) return;
-            if ($("view-main").classList.contains("hidden")) return;
-            loadLicenses(true);
-          }, 45000);
-          toast("به‌روزرسانی خودکار هر ۴۵ ثانیه روشن شد");
+          startAutoRefresh();
+          if (!silent) toast("به‌روزرسانی خودکار هر ۱۰ ثانیه روشن شد");
+        } else {
+          stopAutoRefresh();
+          if (!silent) toast("به‌روزرسانی خودکار خاموش شد");
         }
+      }
+      $("btn-autorefresh").addEventListener("click", function () {
+        var on = !this.classList.contains("on");
+        setAutoRefresh(on);
       });
 
       /* ---------- ورود با حساب سوپابیس (Supabase Auth) ---------- */
@@ -1816,11 +1989,10 @@
         session = null;
         licenses = [];
         selected = {};
-        clearInterval(autoTimer);
-        autoTimer = null;
+        stopAutoRefresh();
         var auto = $("btn-autorefresh");
-        auto.classList.remove("on");
-        auto.setAttribute("aria-pressed", "false");
+        auto.classList.add("on");
+        auto.setAttribute("aria-pressed", "true");
         closeModal();
         $("login-password").value = "";
         $("lock-error").classList.add("hidden");
@@ -1837,6 +2009,7 @@
         catch (e) { $("proj-host").textContent = settings.url; }
         $("user-email").textContent = session.email || "";
         showView("view-main");
+        setAutoRefresh(true, true);
         pingConn();
         loadLicenses();
       }
