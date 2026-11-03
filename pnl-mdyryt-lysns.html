@@ -1,0 +1,1877 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="icon" href="data:," />
+    <title>پنل مدیریت لایسنس</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
+    <style>
+      :root {
+        --bg: #eef1ed;
+        --bg-grad: #e6ebe5;
+        --surface: #ffffff;
+        --surface-2: #f0f3ef;
+        --surface-3: #e4eae3;
+        --line: #d5ddd3;
+        --line-strong: #bcc8ba;
+        --text: #10160f;
+        --muted: #5b6a5c;
+        --faint: #85937f;
+        --accent: #0b7a43;
+        --accent-strong: #075c31;
+        --accent-bright: #0da354;
+        --accent-soft: #dcf2e4;
+        --accent-ink: #063d21;
+        --danger: #c22e2e;
+        --danger-strong: #9c2222;
+        --danger-soft: #fbe7e7;
+        --warn: #96690d;
+        --warn-soft: #f8eed3;
+        --off: #68736a;
+        --off-soft: #e7ebe6;
+        --bar-track: #dde5da;
+        --shadow: 0 14px 34px rgba(16, 34, 20, .09);
+        --shadow-sm: 0 4px 14px rgba(16, 34, 20, .07);
+        --radius: 16px;
+        --mono: "JetBrains Mono", ui-monospace, "Courier New", monospace;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #07090a;
+          --bg-grad: #0a0f0c;
+          --surface: #101613;
+          --surface-2: #161d18;
+          --surface-3: #1e2821;
+          --line: #232e26;
+          --line-strong: #33453a;
+          --text: #eaf4ec;
+          --muted: #9db3a1;
+          --faint: #6d8272;
+          --accent: #2fe08c;
+          --accent-strong: #54eda6;
+          --accent-bright: #2fe08c;
+          --accent-soft: #123324;
+          --accent-ink: #a9f5cd;
+          --danger: #ff7070;
+          --danger-strong: #ff9a9a;
+          --danger-soft: #3a1d1d;
+          --warn: #eec25e;
+          --warn-soft: #38300f;
+          --off: #93a598;
+          --off-soft: #202a22;
+          --bar-track: #1d2820;
+          --shadow: 0 16px 38px rgba(0, 0, 0, .45);
+          --shadow-sm: 0 4px 14px rgba(0, 0, 0, .35);
+        }
+      }
+      * { box-sizing: border-box; }
+      html, body { margin: 0; padding: 0; }
+      body {
+        font-family: "Vazirmatn", Tahoma, system-ui, sans-serif;
+        background: linear-gradient(180deg, var(--bg-grad), var(--bg) 340px);
+        color: var(--text);
+        line-height: 1.7;
+        -webkit-font-smoothing: antialiased;
+        min-height: 100vh;
+      }
+      .wrap { max-width: 1280px; margin: 0 auto; padding: 22px 18px 72px; }
+      .hidden { display: none !important; }
+      .mono { font-family: var(--mono); }
+      button { font-family: inherit; }
+      ::selection { background: var(--accent); color: #fff; }
+
+      /* ---------- buttons ---------- */
+      .btn {
+        font-size: .92rem; font-weight: 700;
+        border: 1px solid var(--line); background: var(--surface);
+        color: var(--text); border-radius: 11px;
+        padding: 8px 15px; cursor: pointer; min-height: 42px;
+        display: inline-flex; align-items: center; gap: 7px; justify-content: center;
+        transition: border-color .15s, background .15s, transform .1s;
+        white-space: nowrap;
+      }
+      .btn svg { width: 17px; height: 17px; flex: none; }
+      .btn:hover { border-color: var(--accent); }
+      .btn:active { transform: translateY(1px); }
+      .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+      @media (prefers-color-scheme: dark) { .btn.primary { color: #04160c; } }
+      .btn.primary:hover { background: var(--accent-bright); border-color: var(--accent-bright); }
+      .btn.danger { color: var(--danger); }
+      .btn.danger:hover { border-color: var(--danger); background: var(--danger-soft); }
+      .btn.solid-danger { background: var(--danger); border-color: var(--danger); color: #fff; }
+      .btn.solid-danger:hover { background: var(--danger-strong); border-color: var(--danger-strong); }
+      .btn.small { min-height: 34px; padding: 4px 11px; font-size: .84rem; border-radius: 9px; }
+      .btn.small svg { width: 15px; height: 15px; }
+      .btn:disabled { opacity: .5; cursor: wait; transform: none; }
+      .iconbtn {
+        border: 1px solid var(--line); background: var(--surface-2);
+        color: var(--text); border-radius: 9px; cursor: pointer;
+        width: 34px; height: 34px; flex: none; padding: 0;
+        display: inline-flex; align-items: center; justify-content: center;
+        transition: border-color .15s, color .15s;
+      }
+      .iconbtn svg { width: 16px; height: 16px; }
+      .iconbtn:hover { border-color: var(--accent); color: var(--accent); }
+
+      /* ---------- cards / forms ---------- */
+      .card {
+        background: var(--surface); border: 1px solid var(--line);
+        border-radius: var(--radius); box-shadow: var(--shadow-sm);
+        padding: 22px; margin-bottom: 18px;
+      }
+      .card > h2, .card-head h2 { margin: 0; font-size: 1.13rem; font-weight: 900; }
+      .card .sub { color: var(--muted); font-size: .9rem; margin: 4px 0 16px; }
+      .card-head { display: flex; align-items: flex-start; gap: 10px; flex-wrap: wrap; margin-bottom: 4px; }
+      .card-head .spacer { flex: 1; }
+      label.field { display: block; margin-bottom: 15px; }
+      label.field > span { display: block; font-weight: 700; font-size: .9rem; margin-bottom: 6px; }
+      label.field small { display: block; color: var(--muted); font-weight: 400; margin-top: 5px; font-size: .8rem; }
+      input[type="text"], input[type="password"], input[type="url"], input[type="search"], input[type="email"],
+      input[type="number"], select, textarea {
+        font-family: inherit; font-size: .95rem; width: 100%;
+        background: var(--surface-2); color: var(--text);
+        border: 1px solid var(--line); border-radius: 10px;
+        padding: 9px 13px; min-height: 44px;
+      }
+      textarea { min-height: 96px; resize: vertical; line-height: 1.6; }
+      select { cursor: pointer; }
+      input:focus, select:focus, textarea:focus { outline: 2px solid var(--accent); outline-offset: 1px; border-color: transparent; }
+      input.ltr, textarea.ltr { direction: ltr; text-align: left; font-family: var(--mono); font-size: .87rem; }
+      .form-error {
+        background: var(--danger-soft); color: var(--danger);
+        border-radius: 10px; padding: 10px 14px; font-size: .9rem; margin-bottom: 14px; font-weight: 500;
+      }
+      .form-ok {
+        background: var(--accent-soft); color: var(--accent-strong);
+        border-radius: 10px; padding: 10px 14px; font-size: .9rem; margin-bottom: 14px; font-weight: 500;
+      }
+      @media (prefers-color-scheme: dark) { .form-ok { color: var(--accent-ink); } }
+      .center-box { max-width: 500px; margin: 7vh auto 0; }
+      .setup-mark {
+        width: 52px; height: 52px; border-radius: 14px; margin-bottom: 14px;
+        background: var(--accent); color: #fff;
+        display: flex; align-items: center; justify-content: center;
+      }
+      @media (prefers-color-scheme: dark) { .setup-mark { color: #04160c; } }
+      .setup-mark svg { width: 27px; height: 27px; }
+
+      details.help { margin-top: 6px; }
+      details.help summary { cursor: pointer; font-weight: 700; font-size: .9rem; color: var(--accent-strong); }
+      details.help pre {
+        direction: ltr; text-align: left; background: var(--surface-2);
+        border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px;
+        overflow-x: auto; font-size: .8rem; line-height: 1.65; font-family: var(--mono);
+        white-space: pre; margin: 10px 0;
+      }
+      details.help p { font-size: .88rem; color: var(--muted); margin: 8px 0; }
+      .pre-wrap { position: relative; }
+      .pre-wrap .btn { position: absolute; top: 18px; left: 8px; }
+
+      /* ---------- app bar ---------- */
+      .appbar {
+        display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+        padding: 6px 0 18px;
+      }
+      .appbar .mark {
+        width: 44px; height: 44px; border-radius: 12px; flex: none;
+        background: var(--accent); color: #fff;
+        display: flex; align-items: center; justify-content: center;
+      }
+      @media (prefers-color-scheme: dark) { .appbar .mark { color: #04160c; } }
+      .appbar .mark svg { width: 23px; height: 23px; }
+      .appbar h1 { font-size: 1.32rem; font-weight: 900; margin: 0; line-height: 1.3; }
+      .appbar .host { color: var(--muted); font-size: .8rem; font-family: var(--mono); direction: ltr; }
+      .appbar .spacer { flex: 1; }
+      .conn {
+        display: inline-flex; align-items: center; gap: 8px;
+        border: 1px solid var(--line); background: var(--surface);
+        border-radius: 999px; padding: 6px 14px; font-size: .83rem; font-weight: 700;
+        min-height: 38px;
+      }
+      .conn .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--faint); flex: none; }
+      .conn.ok .dot { background: var(--accent-bright); box-shadow: 0 0 0 4px var(--accent-soft); }
+      .conn.bad .dot { background: var(--danger); box-shadow: 0 0 0 4px var(--danger-soft); }
+      .conn .ms { color: var(--muted); font-family: var(--mono); font-size: .76rem; direction: ltr; }
+      .switch {
+        display: inline-flex; align-items: center; gap: 8px; cursor: pointer;
+        font-size: .83rem; font-weight: 700; color: var(--muted);
+        border: 1px solid var(--line); background: var(--surface);
+        border-radius: 999px; padding: 6px 14px; min-height: 38px;
+        font-family: inherit;
+      }
+      .switch .track {
+        width: 34px; height: 19px; border-radius: 999px; background: var(--surface-3);
+        position: relative; flex: none; transition: background .15s;
+      }
+      .switch .track::after {
+        content: ""; position: absolute; top: 2.5px; inset-inline-start: 3px;
+        width: 14px; height: 14px; border-radius: 50%; background: var(--muted);
+        transition: transform .15s, background .15s;
+      }
+      .switch.on { color: var(--text); }
+      .switch.on .track { background: var(--accent); }
+      .switch.on .track::after { transform: translateX(-14px); background: #fff; }
+      @media (prefers-color-scheme: dark) { .switch.on .track::after { background: #04160c; } }
+
+      /* ---------- overview ---------- */
+      .overview {
+        background: var(--surface); border: 1px solid var(--line);
+        border-radius: var(--radius); box-shadow: var(--shadow);
+        padding: 22px; margin-bottom: 18px;
+        display: grid; grid-template-columns: 1.15fr .85fr 1.3fr; gap: 26px;
+      }
+      .kpis { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 18px; align-content: start; }
+      .kpi b { display: block; font-size: 1.9rem; font-weight: 900; line-height: 1.15; font-variant-numeric: tabular-nums; }
+      .kpi span { color: var(--muted); font-size: .84rem; font-weight: 500; }
+      .kpi .delta { color: var(--accent-strong); font-size: .78rem; font-weight: 700; }
+      @media (prefers-color-scheme: dark) { .kpi .delta { color: var(--accent-ink); } }
+      .chart-box h3, .donut-box h3 { margin: 0 0 10px; font-size: .88rem; font-weight: 800; color: var(--muted); }
+      .donut-flex { display: flex; align-items: center; gap: 16px; }
+      .donut-legend { font-size: .85rem; }
+      .donut-legend div { display: flex; align-items: center; gap: 7px; margin-bottom: 5px; color: var(--muted); }
+      .donut-legend i { width: 10px; height: 10px; border-radius: 3px; flex: none; }
+      .donut-legend b { color: var(--text); font-variant-numeric: tabular-nums; }
+      .bars-note { color: var(--faint); font-size: .76rem; margin-top: 6px; }
+
+      /* ---------- layout ---------- */
+      .layout { display: grid; grid-template-columns: minmax(0, 1fr) 348px; gap: 18px; align-items: start; }
+      .rail .card { margin-bottom: 18px; }
+
+      /* ---------- segmented / chips ---------- */
+      .seg {
+        display: inline-flex; background: var(--surface-2); border: 1px solid var(--line);
+        border-radius: 11px; padding: 3px; gap: 3px; flex-wrap: wrap;
+      }
+      .seg button {
+        border: none; background: transparent; color: var(--muted);
+        font-size: .87rem; font-weight: 700; border-radius: 8px;
+        padding: 7px 15px; cursor: pointer; min-height: 36px;
+      }
+      .seg button.on { background: var(--surface); color: var(--text); box-shadow: var(--shadow-sm); outline: 1px solid var(--line); padding: 7px 15px; }
+      .chips { display: flex; gap: 7px; flex-wrap: wrap; }
+      .chip {
+        border: 1px solid var(--line); background: var(--surface);
+        color: var(--muted); font-size: .83rem; font-weight: 700;
+        border-radius: 999px; padding: 5px 13px; cursor: pointer; min-height: 34px;
+      }
+      .chip:hover { border-color: var(--accent); }
+      .chip.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+      @media (prefers-color-scheme: dark) { .chip.on { color: #04160c; } }
+      .chip .n { font-variant-numeric: tabular-nums; opacity: .75; font-size: .78rem; }
+
+      /* ---------- create studio ---------- */
+      .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0 14px; }
+      .grid-3 { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 0 14px; }
+      .create-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 2px; }
+      .new-keys {
+        margin-top: 16px; background: var(--accent-soft);
+        border: 1px dashed var(--accent); border-radius: 12px; padding: 14px 16px;
+      }
+      .new-keys .lbl { font-size: .88rem; color: var(--accent-strong); font-weight: 800; display: block; margin-bottom: 8px; }
+      @media (prefers-color-scheme: dark) { .new-keys .lbl { color: var(--accent-ink); } }
+      .new-keys .klist {
+        font-family: var(--mono); direction: ltr; text-align: left;
+        font-size: .95rem; font-weight: 700; letter-spacing: .5px;
+        max-height: 168px; overflow-y: auto; line-height: 1.9; word-break: break-all;
+      }
+      .new-keys .row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+
+      /* ---------- toolbar / table ---------- */
+      .toolbar { display: flex; gap: 9px; flex-wrap: wrap; margin-bottom: 13px; align-items: center; }
+      .toolbar .search { flex: 1; min-width: 190px; position: relative; }
+      .toolbar .search input { padding-inline-start: 38px; }
+      .toolbar .search svg {
+        position: absolute; top: 50%; inset-inline-start: 12px; transform: translateY(-50%);
+        width: 17px; height: 17px; color: var(--faint); pointer-events: none;
+      }
+      .toolbar select { width: auto; min-height: 42px; font-size: .88rem; }
+      .bulkbar {
+        display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+        background: var(--accent-soft); border: 1px solid var(--accent);
+        border-radius: 12px; padding: 9px 13px; margin-bottom: 13px;
+      }
+      .bulkbar .n { font-weight: 900; font-size: .9rem; color: var(--accent-strong); }
+      @media (prefers-color-scheme: dark) { .bulkbar .n { color: var(--accent-ink); } }
+      .bulkbar .spacer { flex: 1; }
+      .table-scroll { overflow-x: auto; margin: 0 -22px; padding: 0 22px; }
+      table { width: 100%; border-collapse: collapse; min-width: 640px; }
+      thead th {
+        text-align: right; font-size: .79rem; color: var(--muted); font-weight: 700;
+        padding: 9px 10px; border-bottom: 2px solid var(--line); white-space: nowrap;
+      }
+      tbody td { padding: 12px 10px; border-bottom: 1px solid var(--line); vertical-align: middle; font-size: .9rem; }
+      tbody tr { transition: background .12s; }
+      tbody tr:hover { background: var(--surface-2); }
+      tbody tr.sel { background: var(--accent-soft); }
+      tbody tr:last-child td { border-bottom: none; }
+      .selbtn {
+        width: 22px; height: 22px; border-radius: 7px; cursor: pointer; padding: 0;
+        border: 2px solid var(--line-strong); background: var(--surface);
+        display: inline-flex; align-items: center; justify-content: center; color: #fff;
+        vertical-align: middle;
+      }
+      @media (prefers-color-scheme: dark) { .selbtn { color: #04160c; } }
+      .selbtn svg { width: 13px; height: 13px; opacity: 0; }
+      .selbtn.on { background: var(--accent); border-color: var(--accent); }
+      .selbtn.on svg { opacity: 1; }
+      .keywrap { display: flex; align-items: center; gap: 8px; }
+      .keytext {
+        font-family: var(--mono); direction: ltr; text-align: left;
+        font-size: .88rem; font-weight: 700; word-break: break-all; cursor: pointer;
+      }
+      .keytext:hover { color: var(--accent-strong); text-decoration: underline; text-underline-offset: 3px; }
+      .pill {
+        display: inline-flex; align-items: center; gap: 6px;
+        font-size: .81rem; font-weight: 700; border-radius: 999px; padding: 3px 12px;
+        border: none; cursor: pointer; min-height: 29px; font-family: inherit;
+      }
+      .pill::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+      .pill.on { background: var(--accent-soft); color: var(--accent-strong); }
+      @media (prefers-color-scheme: dark) { .pill.on { color: var(--accent-ink); } }
+      .pill.off { background: var(--off-soft); color: var(--off); }
+      .hwid {
+        font-family: var(--mono); direction: ltr; text-align: left;
+        font-size: .77rem; word-break: break-all; display: block; max-width: 190px; color: var(--muted);
+      }
+      .none-txt { color: var(--faint); font-size: .85rem; }
+      td.actions { white-space: nowrap; }
+      td.actions .btn, td.actions .iconbtn { margin-inline-start: 5px; }
+      .datecell { color: var(--muted); font-size: .84rem; white-space: nowrap; }
+      .datecell small { display: block; color: var(--faint); font-size: .75rem; }
+      .notecell { max-width: 170px; word-break: break-word; }
+      .empty { text-align: center; color: var(--muted); padding: 40px 16px; font-size: .94rem; }
+      .empty svg { width: 40px; height: 40px; color: var(--line-strong); display: block; margin: 0 auto 10px; }
+      .loading { text-align: center; color: var(--muted); padding: 32px 16px; }
+      .spinner {
+        width: 26px; height: 26px; border-radius: 50%; margin: 0 auto 10px;
+        border: 3px solid var(--surface-3); border-top-color: var(--accent);
+        animation: spin .8s linear infinite;
+      }
+      @keyframes spin { to { transform: rotate(360deg); } }
+      .pager { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+      .pager .info { color: var(--muted); font-size: .85rem; }
+      .pager .spacer { flex: 1; }
+      .pager select { width: auto; min-height: 38px; font-size: .85rem; padding: 4px 10px; }
+
+      /* ---------- checker ---------- */
+      .verdict { border-radius: 12px; padding: 14px 16px; margin-top: 14px; font-size: .9rem; }
+      .verdict h4 { margin: 0 0 4px; font-size: 1rem; font-weight: 900; }
+      .verdict p { margin: 0; }
+      .verdict.good { background: var(--accent-soft); color: var(--accent-ink); }
+      @media (prefers-color-scheme: light) { .verdict.good { color: var(--accent-strong); } }
+      .verdict.bad { background: var(--danger-soft); color: var(--danger); }
+      .verdict dl { margin: 10px 0 0; display: grid; grid-template-columns: auto 1fr; gap: 3px 12px; font-size: .85rem; }
+      .verdict dt { color: var(--muted); font-weight: 700; }
+      .verdict dd { margin: 0; word-break: break-all; }
+
+      /* ---------- activity / danger ---------- */
+      .activity { list-style: none; margin: 0; padding: 0; }
+      .activity li {
+        display: flex; gap: 10px; padding: 8px 0; border-bottom: 1px dashed var(--line);
+        font-size: .87rem; align-items: baseline;
+      }
+      .activity li:last-child { border-bottom: none; }
+      .activity time { color: var(--faint); font-size: .76rem; white-space: nowrap; font-variant-numeric: tabular-nums; }
+      .activity .tag {
+        width: 8px; height: 8px; border-radius: 50%; background: var(--accent-bright); flex: none;
+        position: relative; top: 1px;
+      }
+      .activity .tag.red { background: var(--danger); }
+      .activity .tag.amber { background: var(--warn); }
+      .danger-row {
+        display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+        padding: 11px 0; border-bottom: 1px dashed var(--line);
+      }
+      .danger-row:last-child { border-bottom: none; padding-bottom: 2px; }
+      .danger-row .t { flex: 1; min-width: 150px; }
+      .danger-row .t b { display: block; font-size: .92rem; }
+      .danger-row .t span { color: var(--muted); font-size: .8rem; }
+
+      /* ---------- modal & toast ---------- */
+      .modal-back {
+        position: fixed; inset: 0; background: rgba(5, 10, 7, .6);
+        display: flex; align-items: flex-start; justify-content: center; padding: 16px; z-index: 50;
+        overflow-y: auto;
+      }
+      .modal {
+        background: var(--surface); border: 1px solid var(--line);
+        border-radius: var(--radius); padding: 24px;
+        max-width: 440px; width: 100%; box-shadow: var(--shadow); margin: auto;
+      }
+      .modal.wide { max-width: 520px; }
+      .modal h3 { margin: 0 0 8px; font-size: 1.08rem; font-weight: 900; }
+      .modal .mp { margin: 0 0 16px; color: var(--muted); font-size: .92rem; }
+      .modal .mp .keytext { color: var(--text); cursor: default; }
+      .modal .mp .keytext:hover { text-decoration: none; color: var(--text); }
+      .modal .row { display: flex; gap: 10px; justify-content: flex-start; flex-wrap: wrap; margin-top: 6px; }
+      .detail-grid { display: grid; grid-template-columns: auto 1fr; gap: 9px 14px; font-size: .9rem; margin-bottom: 6px; }
+      .detail-grid dt { color: var(--muted); font-weight: 700; white-space: nowrap; }
+      .detail-grid dd { margin: 0; word-break: break-all; }
+      .detail-grid dd .iconbtn { margin-inline-start: 6px; vertical-align: middle; }
+      #toast {
+        position: fixed; bottom: 22px; right: 50%; transform: translateX(50%) translateY(20px);
+        background: var(--text); color: var(--bg); border-radius: 11px;
+        padding: 11px 20px; font-size: .92rem; font-weight: 700;
+        opacity: 0; pointer-events: none; transition: opacity .25s, transform .25s; z-index: 60;
+        max-width: 92vw; text-align: center; box-shadow: var(--shadow);
+      }
+      #toast.show { opacity: 1; transform: translateX(50%) translateY(0); }
+      #toast.err { background: var(--danger); color: #fff; }
+
+      .updated-at { color: var(--faint); font-size: .79rem; }
+
+      /* ---------- responsive ---------- */
+      @media (max-width: 1020px) {
+        .overview { grid-template-columns: 1fr 1fr; }
+        .chart-box { grid-column: 1 / -1; }
+        .layout { grid-template-columns: 1fr; }
+        .rail { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; align-items: start; }
+        .rail .card { margin-bottom: 0; }
+      }
+      @media (max-width: 720px) {
+        .wrap { padding: 14px 10px 56px; }
+        .card { padding: 16px; }
+        .overview { grid-template-columns: 1fr; padding: 18px 16px; gap: 20px; }
+        .rail { grid-template-columns: 1fr; }
+        .grid-2, .grid-3 { grid-template-columns: 1fr; }
+        .table-scroll { margin: 0 -16px; padding: 0 16px; }
+        table, thead, tbody, tr, td { display: block; width: 100%; min-width: 0; }
+        thead { display: none; }
+        tbody tr {
+          background: var(--surface-2); border: 1px solid var(--line);
+          border-radius: 12px; padding: 12px 14px; margin-bottom: 12px;
+        }
+        tbody tr.sel { background: var(--accent-soft); }
+        tbody td { border: none; padding: 5px 0; }
+        tbody td::before {
+          content: attr(data-label); display: block;
+          font-size: .74rem; color: var(--muted); font-weight: 700; margin-bottom: 2px;
+        }
+        td.selcell::before, td.actions::before { display: none; }
+        td.actions { white-space: normal; padding-top: 10px; }
+        td.actions .btn, td.actions .iconbtn { margin: 3px 0 3px 6px; }
+        .hwid, .notecell { max-width: none; }
+        .appbar h1 { font-size: 1.15rem; }
+        .kpi b { font-size: 1.55rem; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        * { animation: none !important; transition: none !important; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+
+      <!-- ======= قفل ورود ======= -->
+      <section id="view-lock">
+        <div class="center-box">
+          <div class="card">
+            <div class="setup-mark" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/><circle cx="12" cy="16" r="1.4" fill="currentColor" stroke="none"/></svg>
+            </div>
+            <h2>ورود به پنل مدیریت</h2>
+            <p class="sub">رمز عبور پنل را وارد کنید تا وارد شوید.</p>
+            <div id="lock-error" class="form-error hidden" role="alert"></div>
+            <form id="login-form">
+              <label class="field">
+                <span>رمز عبور</span>
+                <input type="password" id="login-password" class="ltr" autocomplete="current-password" placeholder="Password" required />
+              </label>
+              <button class="btn primary" type="submit" id="btn-login" style="width:100%">ورود به پنل</button>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      <!-- ======= پنل اصلی ======= -->
+      <section id="view-main" class="hidden">
+        <header class="appbar">
+          <div class="mark">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-7.6 7.6a5.5 5.5 0 1 1-7.78 7.78 5.5 5.5 0 0 1 7.78-7.78zm0 0L15.5 7.5m0 0 3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+          </div>
+          <div>
+            <h1>پنل مدیریت لایسنس</h1>
+            <div class="host" id="proj-host">—</div>
+          </div>
+          <div class="spacer"></div>
+          <span class="conn" id="conn-pill"><span class="dot"></span><span id="conn-text">در حال بررسی اتصال…</span><span class="ms" id="conn-ms"></span></span>
+          <button class="switch" id="btn-autorefresh" type="button" aria-pressed="false"><span class="track"></span>به‌روزرسانی خودکار</button>
+          <button class="btn" id="btn-refresh" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
+            تازه‌سازی
+          </button>
+          <span class="conn" id="user-chip" title="حساب واردشده"><span id="user-email" dir="ltr" style="font-family:var(--mono); font-size:.8rem"></span></span>
+          <button class="btn" id="btn-lock" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+            خروج از حساب
+          </button>
+                  </header>
+
+        <!-- نمای کلی -->
+        <div class="overview">
+          <div class="kpis">
+            <div class="kpi"><b id="st-total">–</b><span>کل لایسنس‌ها</span></div>
+            <div class="kpi"><b id="st-active">–</b><span>فعال</span></div>
+            <div class="kpi"><b id="st-locked">–</b><span>قفل‌شده روی سیستم</span></div>
+            <div class="kpi"><b id="st-week">–</b><span>ساخته‌شده در ۷ روز اخیر</span> <span class="delta" id="st-week-delta"></span></div>
+          </div>
+          <div class="donut-box">
+            <h3>نسبت فعال به غیرفعال</h3>
+            <div class="donut-flex">
+              <svg id="donut" width="104" height="104" viewBox="0 0 104 104" role="img" aria-label="نمودار نسبت لایسنس‌های فعال">
+                <circle cx="52" cy="52" r="40" fill="none" stroke="var(--bar-track)" stroke-width="13"/>
+                <circle id="donut-arc" cx="52" cy="52" r="40" fill="none" stroke="var(--accent-bright)" stroke-width="13" stroke-linecap="round" transform="rotate(-90 52 52)" stroke-dasharray="0 251.3"/>
+                <text id="donut-pct" x="52" y="58" text-anchor="middle" font-size="19" font-weight="800" fill="var(--text)" font-family="Vazirmatn, sans-serif">–</text>
+              </svg>
+              <div class="donut-legend">
+                <div><i style="background:var(--accent-bright)"></i>فعال <b id="lg-active">–</b></div>
+                <div><i style="background:var(--bar-track)"></i>غیرفعال <b id="lg-inactive">–</b></div>
+                <div><i style="background:var(--warn)"></i>هنوز فعال‌سازی نشده <b id="lg-unused">–</b></div>
+              </div>
+            </div>
+          </div>
+          <div class="chart-box">
+            <h3>ساخت لایسنس در ۱۴ روز اخیر</h3>
+            <svg id="bars" viewBox="0 0 300 96" width="100%" height="96" preserveAspectRatio="none" role="img" aria-label="نمودار میله‌ای ساخت لایسنس در ۱۴ روز اخیر"></svg>
+            <div class="bars-note" id="bars-note"></div>
+          </div>
+        </div>
+
+        <div class="layout">
+          <div class="main-col">
+
+            <!-- استودیوی ساخت -->
+            <div class="card">
+              <div class="card-head">
+                <h2>ساخت لایسنس</h2>
+                <div class="spacer"></div>
+                <div class="seg" id="create-tabs" role="tablist">
+                  <button type="button" class="on" data-tab="single">تکی</button>
+                  <button type="button" data-tab="custom">کلید دلخواه</button>
+                  <button type="button" data-tab="bulk">گروهی</button>
+                  <button type="button" data-tab="import">ورود از فایل</button>
+                </div>
+              </div>
+
+              <!-- تکی -->
+              <form id="tab-single" class="tabpane">
+                <div class="grid-2">
+                  <label class="field">
+                    <span>توضیح (اختیاری)</span>
+                    <input type="text" id="new-note" placeholder="مثلاً: مشتری اول، تست، ..." />
+                  </label>
+                  <label class="field">
+                    <span>وضعیت اولیه</span>
+                    <select id="new-active">
+                      <option value="1">فعال</option>
+                      <option value="0">غیرفعال</option>
+                    </select>
+                  </label>
+                </div>
+                <div class="create-actions">
+                  <button type="submit" class="btn primary" id="btn-create">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+                    ساخت یک لایسنس تصادفی
+                  </button>
+                </div>
+              </form>
+
+              <!-- دلخواه -->
+              <form id="tab-custom" class="tabpane hidden">
+                <div class="grid-2">
+                  <label class="field">
+                    <span>کلید دلخواه</span>
+                    <input type="text" id="custom-key" class="ltr" placeholder="MY-KEY-2026" autocomplete="off" />
+                    <small>حروف، عدد و خط تیره. اگر این کلید قبلاً ساخته شده باشد، خطا می‌گیرید.</small>
+                  </label>
+                  <label class="field">
+                    <span>توضیح (اختیاری)</span>
+                    <input type="text" id="custom-note" placeholder="مثلاً: مشتری ویژه" />
+                  </label>
+                </div>
+                <div class="create-actions">
+                  <button type="submit" class="btn primary" id="btn-create-custom">ساخت با این کلید</button>
+                </div>
+              </form>
+
+              <!-- گروهی -->
+              <form id="tab-bulk" class="tabpane hidden">
+                <div class="grid-3">
+                  <label class="field">
+                    <span>پیشوند (اختیاری)</span>
+                    <input type="text" id="bulk-prefix" class="ltr" placeholder="DOOL" autocomplete="off" />
+                    <small>اول همه کلیدها می‌آید، مثل DOOL-XXXX-…</small>
+                  </label>
+                  <label class="field">
+                    <span>تعداد</span>
+                    <input type="number" id="bulk-count" min="1" max="100" value="10" />
+                    <small>حداکثر ۱۰۰ تا در هر بار</small>
+                  </label>
+                  <label class="field">
+                    <span>توضیح برای همه (اختیاری)</span>
+                    <input type="text" id="bulk-note" placeholder="مثلاً: سری فروش آبان" />
+                  </label>
+                </div>
+                <div class="create-actions">
+                  <button type="submit" class="btn primary" id="btn-create-bulk">ساخت گروهی</button>
+                  <span class="updated-at">همه کلیدها با یک درخواست در دیتابیس ثبت می‌شوند.</span>
+                </div>
+              </form>
+
+              <!-- ورود از فایل -->
+              <div id="tab-import" class="tabpane hidden">
+                <label class="field">
+                  <span>متن کلیدها — هر خط یک کلید (بعد از ویرگول می‌توانید توضیح بنویسید)</span>
+                  <textarea id="import-text" class="ltr" placeholder="KEY-1111, first customer&#10;KEY-2222, second customer" dir="ltr"></textarea>
+                </label>
+                <div class="create-actions">
+                  <button type="button" class="btn primary" id="btn-import">وارد کردن کلیدها</button>
+                  <label class="btn" for="import-file" style="margin:0">انتخاب فایل متنی / CSV</label>
+                  <input type="file" id="import-file" accept=".txt,.csv,text/plain" class="hidden" />
+                  <span class="updated-at">کلیدهایی که از قبل وجود دارند رد می‌شوند و بقیه وارد می‌شوند.</span>
+                </div>
+                <div id="import-result" class="hidden" style="margin-top:12px"></div>
+              </div>
+
+              <!-- خروجی ساخت -->
+              <div id="new-keys-box" class="new-keys hidden">
+                <span class="lbl" id="new-keys-lbl">لایسنس ساخته شد — این کلید را به مشتری بدهید:</span>
+                <div class="klist" id="new-keys-list"></div>
+                <div class="row">
+                  <button type="button" class="btn small" id="btn-copy-new">کپی کلید(ها)</button>
+                  <button type="button" class="btn small" id="btn-dl-new">دانلود فایل متنی</button>
+                  <button type="button" class="btn small" id="btn-hide-new">بستن</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- فهرست -->
+            <div class="card">
+              <div class="card-head">
+                <h2>لایسنس‌ها</h2>
+                <div class="spacer"></div>
+                <span class="updated-at" id="updated-at"></span>
+              </div>
+              <p class="sub" style="margin-bottom:14px">روی کلید هر ردیف بزنید تا جزئیات کاملش را ببینید. روی برچسب وضعیت بزنید تا فعال/غیرفعال شود.</p>
+
+              <div class="toolbar">
+                <div class="search">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+                  <input type="search" id="search" placeholder="جستجو در کلید، توضیح یا شناسه سیستم…" />
+                </div>
+                <select id="sort-sel" aria-label="مرتب‌سازی">
+                  <option value="new">جدیدترین اول</option>
+                  <option value="old">قدیمی‌ترین اول</option>
+                  <option value="key">کلید (الفبا)</option>
+                  <option value="active">فعال‌ها اول</option>
+                  <option value="bound">قفل‌شده‌ها اول</option>
+                </select>
+                <button type="button" class="btn" id="btn-export-csv">خروجی CSV</button>
+                <button type="button" class="btn" id="btn-export-json">خروجی JSON</button>
+                <button type="button" class="btn" id="btn-copy-all">کپی همه کلیدها</button>
+              </div>
+
+              <div class="chips" id="filter-chips" style="margin-bottom:14px">
+                <button type="button" class="chip on" data-f="all">همه <span class="n" data-n="all"></span></button>
+                <button type="button" class="chip" data-f="active">فعال <span class="n" data-n="active"></span></button>
+                <button type="button" class="chip" data-f="inactive">غیرفعال <span class="n" data-n="inactive"></span></button>
+                <button type="button" class="chip" data-f="bound">قفل‌شده روی سیستم <span class="n" data-n="bound"></span></button>
+                <button type="button" class="chip" data-f="unbound">هنوز استفاده نشده <span class="n" data-n="unbound"></span></button>
+              </div>
+
+              <div id="bulkbar" class="bulkbar hidden">
+                <span class="n" id="bulkbar-n"></span>
+                <button type="button" class="btn small" data-bulk="activate">فعال کردن</button>
+                <button type="button" class="btn small" data-bulk="deactivate">غیرفعال کردن</button>
+                <button type="button" class="btn small" data-bulk="release">آزادسازی سیستم</button>
+                <button type="button" class="btn small" data-bulk="copy">کپی کلیدها</button>
+                <button type="button" class="btn small" data-bulk="export">خروجی CSV</button>
+                <button type="button" class="btn small danger" data-bulk="delete">حذف</button>
+                <span class="spacer"></span>
+                <button type="button" class="btn small" id="btn-clear-sel">لغو انتخاب</button>
+              </div>
+
+              <div id="list-error" class="form-error hidden"></div>
+              <div id="list-loading" class="loading hidden"><div class="spinner"></div>در حال دریافت لایسنس‌ها…</div>
+              <div class="table-scroll">
+                <table id="lic-table" class="hidden">
+                  <thead>
+                    <tr>
+                      <th style="width:36px"><button type="button" class="selbtn" id="sel-page" title="انتخاب همه این صفحه" aria-label="انتخاب همه این صفحه"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></button></th>
+                      <th>کلید لایسنس</th>
+                      <th>وضعیت</th>
+                      <th>سیستم قفل‌شده</th>
+                      <th>توضیح</th>
+                      <th>تاریخ ساخت</th>
+                      <th>عملیات</th>
+                    </tr>
+                  </thead>
+                  <tbody id="lic-body"></tbody>
+                </table>
+              </div>
+              <div id="list-empty" class="empty hidden">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-7.6 7.6a5.5 5.5 0 1 1-7.78 7.78 5.5 5.5 0 0 1 7.78-7.78zm0 0L15.5 7.5m0 0 3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+                هنوز هیچ لایسنسی ساخته نشده است. از بخش «ساخت لایسنس» اولین کلید را بسازید.
+              </div>
+              <div id="list-noresult" class="empty hidden">برای این جستجو و فیلتر چیزی پیدا نشد.</div>
+
+              <div class="pager" id="pager">
+                <button type="button" class="btn small" id="pg-prev">قبلی</button>
+                <span class="info" id="pg-info"></span>
+                <button type="button" class="btn small" id="pg-next">بعدی</button>
+                <span class="spacer"></span>
+                <label style="font-size:.84rem; color:var(--muted)">در هر صفحه
+                  <select id="perpage-sel">
+                    <option value="10">۱۰</option>
+                    <option value="25">۲۵</option>
+                    <option value="50">۵۰</option>
+                    <option value="100">۱۰۰</option>
+                  </select>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- ستون کناری -->
+          <div class="rail">
+            <div class="card">
+              <h2>بررسی لایسنس</h2>
+              <p class="sub">کلید را وارد کنید تا دقیقاً همان چیزی را ببینید که برنامه مشتری موقع اجرا می‌بیند.</p>
+              <form id="check-form">
+                <label class="field">
+                  <span>کلید لایسنس</span>
+                  <input type="text" id="check-key" class="ltr" placeholder="XXXX-XXXX-XXXX-XXXX" autocomplete="off" />
+                </label>
+                <button type="submit" class="btn primary" id="btn-check" style="width:100%">بررسی از دیتابیس</button>
+              </form>
+              <div id="check-result" class="hidden"></div>
+            </div>
+
+            <div class="card">
+              <h2>فعالیت‌های این نشست</h2>
+              <p class="sub">کارهایی که از وقتی پنل را باز کرده‌اید انجام شده است.</p>
+              <ul class="activity" id="activity-list">
+                <li><span class="none-txt">هنوز فعالیتی ثبت نشده است.</span></li>
+              </ul>
+            </div>
+
+            <div class="card">
+              <h2 style="color:var(--danger)">منطقه خطر</h2>
+              <p class="sub">این عملیات قابل بازگشت نیست.</p>
+              <div class="danger-row">
+                <div class="t"><b>حذف همه غیرفعال‌ها</b><span id="dz-inactive-n"></span></div>
+                <button type="button" class="btn small danger" id="dz-inactive">حذف</button>
+              </div>
+              <div class="danger-row">
+                <div class="t"><b>حذف همه استفاده‌نشده‌ها</b><span id="dz-unbound-n">لایسنس‌هایی که هنوز روی هیچ سیستمی فعال نشده‌اند</span></div>
+                <button type="button" class="btn small danger" id="dz-unbound">حذف</button>
+              </div>
+              <div class="danger-row">
+                <div class="t"><b>آزادسازی همه سیستم‌ها</b><span>قفل سخت‌افزاری همه لایسنس‌ها پاک می‌شود</span></div>
+                <button type="button" class="btn small danger" id="dz-release-all">آزادسازی</button>
+              </div>
+              <div class="danger-row">
+                <div class="t"><b>حذف همه لایسنس‌ها</b><span>کل جدول خالی می‌شود</span></div>
+                <button type="button" class="btn small solid-danger" id="dz-all">حذف همه</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- ======= مودال عمومی ======= -->
+    <div id="modal-back" class="modal-back hidden">
+      <div class="modal" id="modal-box">
+        <h3 id="modal-title"></h3>
+        <div id="modal-body"></div>
+        <div class="row" id="modal-row">
+          <button class="btn danger" id="modal-ok" type="button"></button>
+          <button class="btn" id="modal-cancel" type="button">انصراف</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="toast" role="status"></div>
+
+    <script>
+      "use strict";
+      var settings = {
+        url: "https://uefpkxcbddjajdjqmwjk.supabase.co",
+        key: "sb_publishable_nA9CpSTR73E56okHMmZRFw_BMNTksQR"
+      };
+      var session = null;           // { accessToken, refreshToken, email } — فقط در حافظه همین نشست
+      var licenses = [];
+      var selected = {};            // id -> true
+      var filterState = { q: "", f: "all", sort: "new", page: 1, perPage: 10 };
+      var lastCreatedKeys = [];
+      var activityLog = [];         // { t: Date, text, kind }
+      var autoTimer = null;
+      var lastLoadedAt = null;
+
+      function $(id) { return document.getElementById(id); }
+      function esc(s) {
+        return String(s == null ? "" : s)
+          .replace(/&/g, "&amp;").replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+      }
+      function faNum(n) { return Number(n || 0).toLocaleString("fa-IR"); }
+      function pad2(n) { return (n < 10 ? "0" : "") + n; }
+
+      function showView(name) {
+        $("view-lock").classList.toggle("hidden", name !== "view-lock");
+        $("view-main").classList.toggle("hidden", name !== "view-main");
+        window.scrollTo(0, 0);
+      }
+
+      /* ---------- پیام شناور ---------- */
+      var toastTimer = null;
+      function toast(msg, isErr) {
+        var t = $("toast");
+        t.textContent = msg;
+        t.className = isErr ? "show err" : "show";
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(function () { t.className = ""; }, 2800);
+      }
+
+      /* ---------- فعالیت نشست ---------- */
+      function logActivity(text, kind) {
+        activityLog.unshift({ t: new Date(), text: text, kind: kind || "" });
+        if (activityLog.length > 30) activityLog.length = 30;
+        renderActivity();
+      }
+      function renderActivity() {
+        var ul = $("activity-list");
+        if (!activityLog.length) {
+          ul.innerHTML = '<li><span class="none-txt">هنوز فعالیتی ثبت نشده است.</span></li>';
+          return;
+        }
+        ul.innerHTML = activityLog.slice(0, 12).map(function (a) {
+          return "<li><span class='tag " + esc(a.kind) + "'></span><span style='flex:1'>" +
+            esc(a.text) + "</span><time>" + pad2(a.t.getHours()) + ":" + pad2(a.t.getMinutes()) + "</time></li>";
+        }).join("");
+      }
+
+      /* ---------- Supabase REST ---------- */
+      function apiBase() { return settings.url.replace(/\/+$/, "") + "/rest/v1/licenses"; }
+      function apiHeaders(extra) {
+        var h = {
+          "apikey": settings.key,
+          "Authorization": "Bearer " + (session && session.accessToken ? session.accessToken : settings.key),
+          "Content-Type": "application/json"
+        };
+        if (extra) for (var k in extra) h[k] = extra[k];
+        return h;
+      }
+      function apiErrorMessage(data, status) {
+        if (status === 401) return "نشست ورود منقضی شده است. از حساب خارج شوید و دوباره وارد شوید.";
+        if (data && data.message) {
+          if (/hwid/i.test(data.message)) return "ستون hwid در جدول licenses وجود ندارد. ساختار جدول دیتابیس کامل نیست.";
+          if (data.code === "23505") return "این کلید قبلاً ساخته شده است.";
+          if (/permission|row-level|policy/i.test(data.message)) return "حساب شما اجازه این کار را ندارد. مطمئن شوید با حساب مدیر وارد شده‌اید و سیاست‌های دسترسی دیتابیس برای کاربران واردشده فعال است.";
+          return data.message;
+        }
+        return "خطا در ارتباط با سوپابیس (کد " + status + ")";
+      }
+      function api(path, options) {
+        return doApi(path, options || {}, false);
+      }
+      function doApi(path, options, retried) {
+        return fetch(apiBase() + path, {
+          method: options.method || "GET",
+          headers: apiHeaders(options.headers),
+          body: options.body !== undefined ? JSON.stringify(options.body) : undefined
+        }).then(function (res) {
+          if (res.status === 401 && !retried && session && session.refreshToken) {
+            return refreshSession().then(function () { return doApi(path, options, true); });
+          }
+          return res.text().then(function (text) {
+            var data = null;
+            try { data = text ? JSON.parse(text) : null; } catch (e) { data = null; }
+            if (!res.ok) throw new Error(apiErrorMessage(data, res.status));
+            return data;
+          });
+        }).catch(function (err) {
+          if (err instanceof TypeError) throw new Error("اتصال برقرار نشد. اینترنت را بررسی کنید.");
+          throw err;
+        });
+      }
+      function pingConn() {
+        var pill = $("conn-pill"), txt = $("conn-text"), ms = $("conn-ms");
+        var t0 = performance.now();
+        return api("?select=id&limit=1").then(function () {
+          var dt = Math.round(performance.now() - t0);
+          pill.className = "conn ok";
+          txt.textContent = "متصل به دیتابیس";
+          ms.textContent = dt + "ms";
+          return true;
+        }).catch(function () {
+          pill.className = "conn bad";
+          txt.textContent = "اتصال قطع است";
+          ms.textContent = "";
+          return false;
+        });
+      }
+
+      /* ---------- تاریخ ---------- */
+      function fmtDate(iso) {
+        if (!iso) return "—";
+        try {
+          return new Date(iso).toLocaleDateString("fa-IR", { year: "numeric", month: "short", day: "numeric" });
+        } catch (e) { return "—"; }
+      }
+      function fmtDateTime(iso) {
+        if (!iso) return "—";
+        try {
+          return new Date(iso).toLocaleString("fa-IR", { year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
+        } catch (e) { return "—"; }
+      }
+      function timeAgo(iso) {
+        if (!iso) return "";
+        var diff = Date.now() - new Date(iso).getTime();
+        if (diff < 0) diff = 0;
+        var m = Math.floor(diff / 60000);
+        if (m < 1) return "همین حالا";
+        if (m < 60) return m.toLocaleString("fa-IR") + " دقیقه پیش";
+        var h = Math.floor(m / 60);
+        if (h < 24) return h.toLocaleString("fa-IR") + " ساعت پیش";
+        var d = Math.floor(h / 24);
+        if (d < 30) return d.toLocaleString("fa-IR") + " روز پیش";
+        var mo = Math.floor(d / 30);
+        if (mo < 12) return mo.toLocaleString("fa-IR") + " ماه پیش";
+        return Math.floor(mo / 12).toLocaleString("fa-IR") + " سال پیش";
+      }
+      function dayKey(d) { return d.getFullYear() + "-" + pad2(d.getMonth() + 1) + "-" + pad2(d.getDate()); }
+
+      /* ---------- کپی و دانلود ---------- */
+      function copyText(text, okMsg) {
+        function done() { toast(okMsg || "کپی شد"); }
+        function fallback() {
+          var ta = document.createElement("textarea");
+          ta.value = text;
+          ta.style.position = "fixed"; ta.style.opacity = "0";
+          document.body.appendChild(ta);
+          ta.select();
+          try { document.execCommand("copy"); done(); }
+          catch (e) { toast("کپی نشد؛ دستی انتخاب و کپی کنید", true); }
+          document.body.removeChild(ta);
+        }
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(done, fallback);
+        } else { fallback(); }
+      }
+      function downloadFile(name, content, mime) {
+        var blob = new Blob([content], { type: mime || "text/plain;charset=utf-8" });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement("a");
+        a.href = url; a.download = name;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(function () { URL.revokeObjectURL(url); }, 400);
+      }
+      function csvCell(v) {
+        v = v == null ? "" : String(v);
+        return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v;
+      }
+      function toCSV(rows) {
+        var lines = ["key,is_active,hwid,note,created_at"];
+        rows.forEach(function (l) {
+          lines.push([csvCell(l.key), l.is_active ? "true" : "false", csvCell(l.hwid), csvCell(l.note), csvCell(l.created_at)].join(","));
+        });
+        return "﻿" + lines.join("\n");
+      }
+
+      /* ---------- مودال ---------- */
+      var modalCb = null;
+      function closeModal() {
+        $("modal-back").classList.add("hidden");
+        $("modal-body").innerHTML = "";
+        modalCb = null;
+      }
+      function openModal(title, bodyHTML, wide) {
+        $("modal-title").textContent = title;
+        $("modal-body").innerHTML = bodyHTML;
+        $("modal-box").classList.toggle("wide", !!wide);
+        $("modal-row").classList.add("hidden");
+        $("modal-back").classList.remove("hidden");
+      }
+      function askConfirm(title, textHtml, okLabel, cb, dangerSolid) {
+        $("modal-title").textContent = title;
+        $("modal-box").classList.remove("wide");
+        $("modal-body").innerHTML = '<p class="mp">' + textHtml + "</p>";
+        var ok = $("modal-ok");
+        ok.textContent = okLabel;
+        ok.className = dangerSolid ? "btn solid-danger" : "btn danger";
+        modalCb = cb;
+        $("modal-row").classList.remove("hidden");
+        $("modal-back").classList.remove("hidden");
+      }
+      $("modal-cancel").addEventListener("click", closeModal);
+      $("modal-back").addEventListener("click", function (e) { if (e.target === this) closeModal(); });
+      $("modal-ok").addEventListener("click", function () {
+        var cb = modalCb;
+        closeModal();
+        if (cb) cb();
+      });
+      document.addEventListener("keydown", function (e) {
+        if (e.key === "Escape" && !$("modal-back").classList.contains("hidden")) closeModal();
+      });
+
+      /* ---------- آمار و نمودار ---------- */
+      function statsOf(rows) {
+        var now = Date.now(), weekAgo = now - 7 * 864e5, twoWeeksAgo = now - 14 * 864e5;
+        var s = { total: rows.length, active: 0, inactive: 0, bound: 0, unbound: 0, week: 0, prevWeek: 0 };
+        rows.forEach(function (l) {
+          if (l.is_active) s.active++; else s.inactive++;
+          if (l.hwid) s.bound++; else s.unbound++;
+          var t = l.created_at ? new Date(l.created_at).getTime() : 0;
+          if (t >= weekAgo) s.week++;
+          else if (t >= twoWeeksAgo) s.prevWeek++;
+        });
+        return s;
+      }
+      function renderOverview() {
+        var s = statsOf(licenses);
+        $("st-total").textContent = faNum(s.total);
+        $("st-active").textContent = faNum(s.active);
+        $("st-locked").textContent = faNum(s.bound);
+        $("st-week").textContent = faNum(s.week);
+        var d = s.week - s.prevWeek;
+        $("st-week-delta").textContent = s.total && (s.week || s.prevWeek)
+          ? (d > 0 ? "▲ " + faNum(d) + " نسبت به هفته قبل" : d < 0 ? "▼ " + faNum(-d) + " نسبت به هفته قبل" : "برابر با هفته قبل")
+          : "";
+        // دونات
+        var pct = s.total ? Math.round(s.active / s.total * 100) : 0;
+        var C = 251.3;
+        $("donut-arc").setAttribute("stroke-dasharray", (C * pct / 100).toFixed(1) + " " + C);
+        $("donut-pct").textContent = s.total ? pct.toLocaleString("fa-IR") + "٪" : "—";
+        $("lg-active").textContent = faNum(s.active);
+        $("lg-inactive").textContent = faNum(s.inactive);
+        $("lg-unused").textContent = faNum(s.unbound);
+        // میله‌های ۱۴ روز
+        var days = [], counts = {}, i, dt;
+        for (i = 13; i >= 0; i--) {
+          dt = new Date(); dt.setDate(dt.getDate() - i);
+          days.push(dayKey(dt)); counts[dayKey(dt)] = 0;
+        }
+        licenses.forEach(function (l) {
+          if (!l.created_at) return;
+          var k = dayKey(new Date(l.created_at));
+          if (counts[k] !== undefined) counts[k]++;
+        });
+        var max = 1;
+        days.forEach(function (k) { if (counts[k] > max) max = counts[k]; });
+        var W = 300, H = 96, base = 82, bw = W / days.length;
+        var svg = "";
+        days.forEach(function (k, idx) {
+          var v = counts[k];
+          var h = v ? Math.max(4, (base - 8) * v / max) : 2;
+          var x = (idx * bw + bw * 0.22).toFixed(1);
+          var y = (base - h).toFixed(1);
+          var w = (bw * 0.56).toFixed(1);
+          var isToday = idx === days.length - 1;
+          svg += '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h.toFixed(1) +
+            '" rx="2.5" fill="' + (v ? (isToday ? "var(--accent-strong)" : "var(--accent-bright)") : "var(--bar-track)") + '">' +
+            "<title>" + esc(k) + ": " + v + "</title></rect>";
+          if (idx % 3 === 0 || isToday) {
+            var lbl = new Date(k + "T12:00:00").toLocaleDateString("fa-IR", { day: "numeric", month: "numeric" });
+            svg += '<text x="' + (idx * bw + bw / 2).toFixed(1) + '" y="94" text-anchor="middle" font-size="7.5" fill="var(--faint)" font-family="Vazirmatn, sans-serif">' + esc(lbl) + "</text>";
+          }
+        });
+        $("bars").innerHTML = svg;
+        var sum14 = days.reduce(function (a, k) { return a + counts[k]; }, 0);
+        $("bars-note").textContent = s.total
+          ? "مجموع ساخت در این بازه: " + faNum(sum14) + " لایسنس" + (max > 1 ? " — شلوغ‌ترین روز: " + faNum(max) + " ساخت" : "")
+          : "هنوز داده‌ای برای نمایش نمودار نیست.";
+        // شمارنده‌های چیپ و منطقه خطر
+        document.querySelectorAll("#filter-chips .n").forEach(function (el) {
+          var f = el.getAttribute("data-n");
+          el.textContent = faNum(f === "all" ? s.total : f === "active" ? s.active : f === "inactive" ? s.inactive : f === "bound" ? s.bound : s.unbound);
+        });
+        $("dz-inactive-n").textContent = faNum(s.inactive) + " لایسنس غیرفعال";
+        $("dz-unbound-n").textContent = faNum(s.unbound) + " لایسنس هنوز روی هیچ سیستمی فعال نشده‌اند";
+      }
+
+      /* ---------- فهرست: فیلتر، مرتب‌سازی، صفحه‌بندی ---------- */
+      function filteredRows() {
+        var q = filterState.q.trim().toLowerCase();
+        var rows = licenses.filter(function (lic) {
+          if (filterState.f === "active" && !lic.is_active) return false;
+          if (filterState.f === "inactive" && lic.is_active) return false;
+          if (filterState.f === "bound" && !lic.hwid) return false;
+          if (filterState.f === "unbound" && lic.hwid) return false;
+          if (!q) return true;
+          return (lic.key || "").toLowerCase().indexOf(q) !== -1 ||
+                 (lic.note || "").toLowerCase().indexOf(q) !== -1 ||
+                 (lic.hwid || "").toLowerCase().indexOf(q) !== -1;
+        });
+        var s = filterState.sort;
+        rows.sort(function (a, b) {
+          if (s === "old") return new Date(a.created_at || 0) - new Date(b.created_at || 0);
+          if (s === "key") return String(a.key).localeCompare(String(b.key));
+          if (s === "active") return (b.is_active ? 1 : 0) - (a.is_active ? 1 : 0) || new Date(b.created_at || 0) - new Date(a.created_at || 0);
+          if (s === "bound") return (b.hwid ? 1 : 0) - (a.hwid ? 1 : 0) || new Date(b.created_at || 0) - new Date(a.created_at || 0);
+          return new Date(b.created_at || 0) - new Date(a.created_at || 0);
+        });
+        return rows;
+      }
+      function findLic(id) {
+        return licenses.filter(function (l) { return String(l.id) === String(id); })[0];
+      }
+      function selectedIds() {
+        return Object.keys(selected).filter(function (id) { return selected[id] && findLic(id); });
+      }
+      function updateBulkbar() {
+        var n = selectedIds().length;
+        $("bulkbar").classList.toggle("hidden", n === 0);
+        $("bulkbar-n").textContent = faNum(n) + " لایسنس انتخاب شده";
+      }
+      var CHECK_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
+      var COPY_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+
+      function renderList() {
+        var rows = filteredRows();
+        var totalPages = Math.max(1, Math.ceil(rows.length / filterState.perPage));
+        if (filterState.page > totalPages) filterState.page = totalPages;
+        var start = (filterState.page - 1) * filterState.perPage;
+        var pageRows = rows.slice(start, start + filterState.perPage);
+
+        $("list-empty").classList.toggle("hidden", licenses.length !== 0);
+        $("list-noresult").classList.toggle("hidden", !(licenses.length > 0 && rows.length === 0));
+        $("lic-table").classList.toggle("hidden", pageRows.length === 0);
+        $("pager").classList.toggle("hidden", rows.length === 0);
+
+        $("lic-body").innerHTML = pageRows.map(function (lic) {
+          var isSel = !!selected[lic.id];
+          var statusPill = lic.is_active
+            ? '<button type="button" class="pill on" data-act="toggle" data-id="' + lic.id + '" title="برای غیرفعال کردن بزنید">فعال</button>'
+            : '<button type="button" class="pill off" data-act="toggle" data-id="' + lic.id + '" title="برای فعال کردن بزنید">غیرفعال</button>';
+          var hwidCell = lic.hwid
+            ? '<span class="hwid" title="' + esc(lic.hwid) + '">' + esc(lic.hwid) + "</span>"
+            : '<span class="none-txt">هنوز روی سیستمی فعال نشده</span>';
+          return '<tr class="' + (isSel ? "sel" : "") + '">' +
+            '<td class="selcell" data-label=""><button type="button" class="selbtn' + (isSel ? " on" : "") + '" data-act="sel" data-id="' + lic.id + '" aria-label="انتخاب ردیف">' + CHECK_SVG + "</button></td>" +
+            '<td data-label="کلید لایسنس"><div class="keywrap">' +
+              '<span class="keytext" data-act="detail" data-id="' + lic.id + '" title="دیدن جزئیات">' + esc(lic.key) + "</span>" +
+              '<button type="button" class="iconbtn" data-act="copy" data-key="' + esc(lic.key) + '" title="کپی کلید" aria-label="کپی کلید">' + COPY_SVG + "</button>" +
+            "</div></td>" +
+            '<td data-label="وضعیت">' + statusPill + "</td>" +
+            '<td data-label="سیستم قفل‌شده">' + hwidCell + "</td>" +
+            '<td class="notecell" data-label="توضیح">' + (lic.note ? esc(lic.note) : '<span class="none-txt">—</span>') + "</td>" +
+            '<td class="datecell" data-label="تاریخ ساخت">' + fmtDate(lic.created_at) + "<small>" + esc(timeAgo(lic.created_at)) + "</small></td>" +
+            '<td class="actions" data-label="">' +
+              (lic.hwid ? '<button type="button" class="btn small" data-act="release" data-id="' + lic.id + '">آزادسازی</button>' : "") +
+              '<button type="button" class="btn small" data-act="edit" data-id="' + lic.id + '">ویرایش</button>' +
+              '<button type="button" class="btn small" data-act="dup" data-id="' + lic.id + '">کپی ساخت</button>' +
+              '<button type="button" class="btn small danger" data-act="del" data-id="' + lic.id + '">حذف</button>' +
+            "</td></tr>";
+        }).join("");
+
+        var pageIds = pageRows.map(function (l) { return String(l.id); });
+        var allSel = pageIds.length > 0 && pageIds.every(function (id) { return selected[id]; });
+        $("sel-page").classList.toggle("on", allSel);
+        $("pg-info").textContent = rows.length
+          ? "صفحه " + faNum(filterState.page) + " از " + faNum(totalPages) + " — " + faNum(rows.length) + " مورد"
+          : "";
+        $("pg-prev").disabled = filterState.page <= 1;
+        $("pg-next").disabled = filterState.page >= totalPages;
+        updateBulkbar();
+      }
+
+      function loadLicenses(silent) {
+        if (!silent) {
+          $("list-error").classList.add("hidden");
+          $("list-loading").classList.remove("hidden");
+        }
+        return api("?select=*&order=created_at.desc")
+          .then(function (data) {
+            licenses = Array.isArray(data) ? data : [];
+            lastLoadedAt = new Date();
+            $("list-loading").classList.add("hidden");
+            $("updated-at").textContent = "آخرین به‌روزرسانی: " +
+              pad2(lastLoadedAt.getHours()) + ":" + pad2(lastLoadedAt.getMinutes()) + ":" + pad2(lastLoadedAt.getSeconds());
+            renderOverview();
+            renderList();
+          })
+          .catch(function (err) {
+            $("list-loading").classList.add("hidden");
+            if (!silent) {
+              var e = $("list-error");
+              e.textContent = err.message;
+              e.classList.remove("hidden");
+            } else {
+              toast(err.message, true);
+            }
+          });
+      }
+
+      /* ---------- عملیات روی دیتابیس ---------- */
+      function patchLic(id, body) {
+        return api("?id=eq." + encodeURIComponent(id), {
+          method: "PATCH", body: body, headers: { "Prefer": "return=minimal" }
+        });
+      }
+      function deleteLic(id) {
+        return api("?id=eq." + encodeURIComponent(id), { method: "DELETE" });
+      }
+      function runBatch(ids, fn) {
+        var chain = Promise.resolve(), done = 0;
+        ids.forEach(function (id) {
+          chain = chain.then(function () {
+            return fn(id).then(function () { done++; });
+          });
+        });
+        return chain.then(function () { return done; });
+      }
+
+      /* ---------- جزئیات و ویرایش ---------- */
+      function openDetail(lic) {
+        if (!lic) return;
+        var statusTxt = lic.is_active ? "فعال" : "غیرفعال";
+        var hw = lic.hwid
+          ? '<span class="mono" dir="ltr" style="font-size:.8rem">' + esc(lic.hwid) + '</span><button type="button" class="iconbtn" id="d-copy-hwid" title="کپی شناسه سیستم">' + COPY_SVG + "</button>"
+          : '<span class="none-txt">هنوز روی هیچ سیستمی فعال نشده است</span>';
+        openModal("جزئیات لایسنس",
+          '<dl class="detail-grid">' +
+          "<dt>کلید</dt><dd><span class='keytext'>" + esc(lic.key) + '</span><button type="button" class="iconbtn" id="d-copy-key" title="کپی کلید">' + COPY_SVG + "</button></dd>" +
+          "<dt>وضعیت</dt><dd>" + statusTxt + "</dd>" +
+          "<dt>سیستم قفل‌شده</dt><dd>" + hw + "</dd>" +
+          "<dt>توضیح</dt><dd>" + (lic.note ? esc(lic.note) : "—") + "</dd>" +
+          "<dt>تاریخ ساخت</dt><dd>" + fmtDateTime(lic.created_at) + " (" + esc(timeAgo(lic.created_at)) + ")</dd>" +
+          "<dt>شناسه ردیف</dt><dd class='mono' dir='ltr' style='text-align:right; font-size:.82rem'>" + esc(lic.id) + "</dd>" +
+          "</dl>" +
+          '<div class="row" style="display:flex; gap:10px; flex-wrap:wrap; margin-top:16px">' +
+          '<button type="button" class="btn" id="d-toggle">' + (lic.is_active ? "غیرفعال کردن" : "فعال کردن") + "</button>" +
+          (lic.hwid ? '<button type="button" class="btn" id="d-release">آزادسازی سیستم</button>' : "") +
+          '<button type="button" class="btn" id="d-edit">ویرایش</button>' +
+          '<button type="button" class="btn danger" id="d-del">حذف</button>' +
+          "</div>", true);
+        $("d-copy-key").addEventListener("click", function () { copyText(lic.key, "کلید کپی شد"); });
+        var ch = $("d-copy-hwid");
+        if (ch) ch.addEventListener("click", function () { copyText(lic.hwid, "شناسه سیستم کپی شد"); });
+        $("d-toggle").addEventListener("click", function () {
+          patchLic(lic.id, { is_active: !lic.is_active }).then(function () {
+            lic.is_active = !lic.is_active;
+            renderOverview(); renderList(); closeModal();
+            logActivity((lic.is_active ? "فعال شد: " : "غیرفعال شد: ") + lic.key, "amber");
+            toast(lic.is_active ? "لایسنس فعال شد" : "لایسنس غیرفعال شد");
+          }).catch(function (e) { toast(e.message, true); });
+        });
+        var rel = $("d-release");
+        if (rel) rel.addEventListener("click", function () {
+          closeModal();
+          confirmRelease(lic);
+        });
+        $("d-edit").addEventListener("click", function () { openEdit(lic); });
+        $("d-del").addEventListener("click", function () {
+          closeModal();
+          confirmDelete(lic);
+        });
+      }
+      function openEdit(lic) {
+        if (!lic) return;
+        var active = lic.is_active;
+        openModal("ویرایش لایسنس",
+          '<label class="field"><span>کلید (قابل ویرایش نیست)</span>' +
+          '<input type="text" class="ltr" value="' + esc(lic.key) + '" disabled /></label>' +
+          '<label class="field"><span>توضیح</span>' +
+          '<input type="text" id="e-note" value="' + esc(lic.note || "") + '" placeholder="توضیحی برای این لایسنس" /></label>' +
+          '<label class="field"><span>شناسه سیستم قفل‌شده (HWID)</span>' +
+          '<input type="text" id="e-hwid" class="ltr" value="' + esc(lic.hwid || "") + '" placeholder="خالی = روی هیچ سیستمی قفل نیست" />' +
+          "<small style='color:var(--muted); font-size:.8rem'>اگر شناسه سیستم مشتری را دستی وارد کنید، لایسنس از همان لحظه فقط روی آن سیستم کار می‌کند. خالی بگذارید تا با اولین اجرا قفل شود.</small></label>" +
+          '<label class="field"><span>وضعیت</span><br/>' +
+          '<span class="seg" id="e-active-seg">' +
+          '<button type="button" data-v="1">فعال</button><button type="button" data-v="0">غیرفعال</button></span></label>' +
+          '<div class="row" style="display:flex; gap:10px; flex-wrap:wrap; margin-top:8px">' +
+          '<button type="button" class="btn primary" id="e-save">ذخیره تغییرات</button>' +
+          '<button type="button" class="btn" id="e-cancel">انصراف</button></div>', true);
+        var segBtns = $("e-active-seg").querySelectorAll("button");
+        function paintSeg() {
+          segBtns.forEach(function (b) { b.classList.toggle("on", (b.getAttribute("data-v") === "1") === active); });
+        }
+        segBtns.forEach(function (b) {
+          b.addEventListener("click", function () { active = b.getAttribute("data-v") === "1"; paintSeg(); });
+        });
+        paintSeg();
+        $("e-cancel").addEventListener("click", closeModal);
+        $("e-save").addEventListener("click", function () {
+          var btn = this; btn.disabled = true; btn.textContent = "در حال ذخیره…";
+          var newHwid = $("e-hwid").value.trim();
+          var body = { note: $("e-note").value.trim() || null, hwid: newHwid || null, is_active: active };
+          patchLic(lic.id, body).then(function () {
+            lic.note = body.note; lic.hwid = body.hwid; lic.is_active = active;
+            renderOverview(); renderList(); closeModal();
+            logActivity("ویرایش شد: " + lic.key);
+            toast("تغییرات ذخیره شد");
+          }).catch(function (e) {
+            btn.disabled = false; btn.textContent = "ذخیره تغییرات";
+            toast(e.message, true);
+          });
+        });
+      }
+      function confirmRelease(lic) {
+        askConfirm("آزادسازی سیستم",
+          'لایسنس <span class="keytext">' + esc(lic.key) + "</span> از سیستم فعلی جدا می‌شود و دفعه بعد روی هر سیستمی که اول اجرا شود قفل خواهد شد. ادامه می‌دهید؟",
+          "آزادسازی",
+          function () {
+            patchLic(lic.id, { hwid: null }).then(function () {
+              lic.hwid = null;
+              renderOverview(); renderList();
+              logActivity("سیستم آزاد شد: " + lic.key, "amber");
+              toast("سیستم آزاد شد؛ لایسنس آماده فعال‌سازی روی سیستم جدید است");
+            }).catch(function (e) { toast(e.message, true); });
+          });
+      }
+      function confirmDelete(lic) {
+        askConfirm("حذف لایسنس",
+          'لایسنس <span class="keytext">' + esc(lic.key) + "</span> برای همیشه حذف می‌شود و برنامه‌ای که با آن کار می‌کند دیگر باز نخواهد شد. ادامه می‌دهید؟",
+          "حذف", function () {
+            deleteLic(lic.id).then(function () {
+              licenses = licenses.filter(function (l) { return String(l.id) !== String(lic.id); });
+              delete selected[lic.id];
+              renderOverview(); renderList();
+              logActivity("حذف شد: " + lic.key, "red");
+              toast("لایسنس حذف شد");
+            }).catch(function (e) { toast(e.message, true); });
+          }, true);
+      }
+
+      /* ---------- رویدادهای جدول ---------- */
+      $("lic-body").addEventListener("click", function (e) {
+        var btn = e.target.closest("[data-act]");
+        if (!btn) return;
+        var act = btn.getAttribute("data-act");
+        var id = btn.getAttribute("data-id");
+        if (act === "copy") { copyText(btn.getAttribute("data-key"), "کلید کپی شد"); return; }
+        if (act === "sel") {
+          if (selected[id]) delete selected[id]; else selected[id] = true;
+          renderList();
+          return;
+        }
+        var lic = findLic(id);
+        if (!lic) return;
+        if (act === "detail") openDetail(lic);
+        else if (act === "edit") openEdit(lic);
+        else if (act === "release") confirmRelease(lic);
+        else if (act === "del") confirmDelete(lic);
+        else if (act === "toggle") {
+          btn.disabled = true;
+          patchLic(id, { is_active: !lic.is_active }).then(function () {
+            lic.is_active = !lic.is_active;
+            renderOverview(); renderList();
+            logActivity((lic.is_active ? "فعال شد: " : "غیرفعال شد: ") + lic.key, "amber");
+            toast(lic.is_active ? "لایسنس فعال شد" : "لایسنس غیرفعال شد");
+          }).catch(function (err) { btn.disabled = false; toast(err.message, true); });
+        }
+        else if (act === "dup") {
+          btn.disabled = true;
+          var nk = genKey("");
+          api("", {
+            method: "POST",
+            body: { key: nk, is_active: lic.is_active, note: lic.note || null },
+            headers: { "Prefer": "return=representation" }
+          }).then(function (data) {
+            var row = Array.isArray(data) && data[0] ? data[0] : { key: nk, is_active: lic.is_active, note: lic.note || null, hwid: null, created_at: new Date().toISOString() };
+            licenses.unshift(row);
+            renderOverview(); renderList();
+            showCreated([nk], "کپی از لایسنس " + lic.key + " ساخته شد:");
+            logActivity("کپی ساخته شد از: " + lic.key);
+          }).catch(function (err) { toast(err.message, true); })
+            .then(function () { btn.disabled = false; });
+        }
+      });
+      $("sel-page").addEventListener("click", function () {
+        var rows = filteredRows();
+        var start = (filterState.page - 1) * filterState.perPage;
+        var pageRows = rows.slice(start, start + filterState.perPage);
+        var allSel = pageRows.length && pageRows.every(function (l) { return selected[l.id]; });
+        pageRows.forEach(function (l) {
+          if (allSel) delete selected[l.id]; else selected[l.id] = true;
+        });
+        renderList();
+      });
+      $("btn-clear-sel").addEventListener("click", function () { selected = {}; renderList(); });
+      $("bulkbar").addEventListener("click", function (e) {
+        var btn = e.target.closest("[data-bulk]");
+        if (!btn) return;
+        var action = btn.getAttribute("data-bulk");
+        var ids = selectedIds();
+        if (!ids.length) return;
+        var rows = ids.map(findLic).filter(Boolean);
+        if (action === "copy") {
+          copyText(rows.map(function (l) { return l.key; }).join("\n"), faNum(rows.length) + " کلید کپی شد");
+          return;
+        }
+        if (action === "export") {
+          downloadFile("licenses-selected.csv", toCSV(rows), "text/csv;charset=utf-8");
+          logActivity("خروجی CSV از " + faNum(rows.length) + " لایسنس انتخاب‌شده گرفته شد");
+          return;
+        }
+        if (action === "delete") {
+          askConfirm("حذف گروهی",
+            faNum(ids.length) + " لایسنس انتخاب‌شده برای همیشه حذف می‌شوند. ادامه می‌دهید؟",
+            "حذف همه", function () {
+              runBatch(ids, deleteLic).then(function () {
+                var idset = {}; ids.forEach(function (i) { idset[i] = true; });
+                licenses = licenses.filter(function (l) { return !idset[l.id]; });
+                selected = {};
+                renderOverview(); renderList();
+                logActivity(faNum(ids.length) + " لایسنس به‌صورت گروهی حذف شد", "red");
+                toast("لایسنس‌های انتخاب‌شده حذف شدند");
+              }).catch(function (err) { toast(err.message, true); });
+            }, true);
+          return;
+        }
+        var body = action === "activate" ? { is_active: true }
+          : action === "deactivate" ? { is_active: false }
+          : { hwid: null };
+        var label = action === "activate" ? "فعال" : action === "deactivate" ? "غیرفعال" : "سیستمشان آزاد";
+        runBatch(ids, function (id) { return patchLic(id, body); }).then(function () {
+          rows.forEach(function (l) {
+            if (action === "release") l.hwid = null; else l.is_active = body.is_active;
+          });
+          renderOverview(); renderList();
+          logActivity(faNum(ids.length) + " لایسنس " + label + " شد", "amber");
+          toast(faNum(ids.length) + " لایسنس " + label + " شد");
+        }).catch(function (err) { toast(err.message, true); });
+      });
+
+      /* ---------- فیلتر و صفحه‌بندی ---------- */
+      $("search").addEventListener("input", function () {
+        filterState.q = this.value; filterState.page = 1; renderList();
+      });
+      $("sort-sel").addEventListener("change", function () {
+        filterState.sort = this.value; filterState.page = 1; renderList();
+      });
+      $("perpage-sel").addEventListener("change", function () {
+        filterState.perPage = parseInt(this.value, 10) || 10; filterState.page = 1; renderList();
+      });
+      $("filter-chips").addEventListener("click", function (e) {
+        var chip = e.target.closest("[data-f]");
+        if (!chip) return;
+        this.querySelectorAll(".chip").forEach(function (c) { c.classList.toggle("on", c === chip); });
+        filterState.f = chip.getAttribute("data-f");
+        filterState.page = 1;
+        renderList();
+      });
+      $("pg-prev").addEventListener("click", function () { if (filterState.page > 1) { filterState.page--; renderList(); } });
+      $("pg-next").addEventListener("click", function () { filterState.page++; renderList(); });
+
+      /* ---------- ساخت کلید ---------- */
+      function genKey(prefix) {
+        var chars = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
+        function group() {
+          var bytes = new Uint8Array(4);
+          crypto.getRandomValues(bytes);
+          var out = "";
+          for (var i = 0; i < 4; i++) out += chars[bytes[i] % chars.length];
+          return out;
+        }
+        var k = group() + "-" + group() + "-" + group() + "-" + group();
+        if (prefix) k = prefix + "-" + k;
+        return k;
+      }
+      function uniqueKey(prefix) {
+        var k, guard = 0;
+        do { k = genKey(prefix); guard++; }
+        while (guard < 30 && licenses.some(function (l) { return l.key === k; }));
+        return k;
+      }
+      function showCreated(keys, label) {
+        lastCreatedKeys = keys.slice();
+        $("new-keys-lbl").textContent = label || "لایسنس ساخته شد — این کلید را به مشتری بدهید:";
+        $("new-keys-list").innerHTML = keys.map(function (k) { return esc(k); }).join("<br/>");
+        $("new-keys-box").classList.remove("hidden");
+      }
+      $("btn-copy-new").addEventListener("click", function () {
+        if (lastCreatedKeys.length) copyText(lastCreatedKeys.join("\n"), "کلید(ها) کپی شد");
+      });
+      $("btn-dl-new").addEventListener("click", function () {
+        if (lastCreatedKeys.length) downloadFile("license-keys.txt", lastCreatedKeys.join("\n"));
+      });
+      $("btn-hide-new").addEventListener("click", function () { $("new-keys-box").classList.add("hidden"); });
+
+      /* تب‌های ساخت */
+      $("create-tabs").addEventListener("click", function (e) {
+        var b = e.target.closest("[data-tab]");
+        if (!b) return;
+        this.querySelectorAll("button").forEach(function (x) { x.classList.toggle("on", x === b); });
+        ["single", "custom", "bulk", "import"].forEach(function (t) {
+          $("tab-" + t).classList.toggle("hidden", t !== b.getAttribute("data-tab"));
+        });
+      });
+
+      function afterCreate(rows, label) {
+        rows.forEach(function (r) { licenses.unshift(r); });
+        filterState.page = 1;
+        renderOverview(); renderList();
+        showCreated(rows.map(function (r) { return r.key; }), label);
+      }
+      function busy(btn, busyTxt, fn) {
+        var old = btn.innerHTML;
+        btn.disabled = true; btn.textContent = busyTxt;
+        fn().then(function () {}, function () {}).then(function () {
+          btn.disabled = false; btn.innerHTML = old;
+        });
+      }
+      /* تکی */
+      $("tab-single").addEventListener("submit", function (e) {
+        e.preventDefault();
+        var btn = $("btn-create");
+        busy(btn, "در حال ساخت…", function () {
+          var key = uniqueKey("");
+          var note = $("new-note").value.trim();
+          var active = $("new-active").value === "1";
+          return api("", {
+            method: "POST",
+            body: { key: key, is_active: active, note: note || null },
+            headers: { "Prefer": "return=representation" }
+          }).then(function (data) {
+            var row = Array.isArray(data) && data[0] ? data[0] : { key: key, is_active: active, note: note || null, hwid: null, created_at: new Date().toISOString() };
+            afterCreate([row]);
+            $("new-note").value = "";
+            logActivity("لایسنس ساخته شد: " + key);
+            toast("لایسنس ساخته شد");
+          }).catch(function (err) { toast(err.message, true); });
+        });
+      });
+      /* دلخواه */
+      $("tab-custom").addEventListener("submit", function (e) {
+        e.preventDefault();
+        var key = $("custom-key").value.trim().toUpperCase();
+        if (!key) { toast("کلید دلخواه را وارد کنید", true); return; }
+        if (!/^[A-Z0-9][A-Z0-9\-_. ]{2,63}$/.test(key)) {
+          toast("کلید فقط می‌تواند حروف انگلیسی، عدد، خط تیره و نقطه داشته باشد (۳ تا ۶۴ نویسه)", true);
+          return;
+        }
+        if (licenses.some(function (l) { return l.key === key; })) {
+          toast("این کلید قبلاً ساخته شده است", true);
+          return;
+        }
+        var btn = $("btn-create-custom");
+        busy(btn, "در حال ساخت…", function () {
+          var note = $("custom-note").value.trim();
+          return api("", {
+            method: "POST",
+            body: { key: key, is_active: true, note: note || null },
+            headers: { "Prefer": "return=representation" }
+          }).then(function (data) {
+            var row = Array.isArray(data) && data[0] ? data[0] : { key: key, is_active: true, note: note || null, hwid: null, created_at: new Date().toISOString() };
+            afterCreate([row]);
+            $("custom-key").value = ""; $("custom-note").value = "";
+            logActivity("لایسنس دلخواه ساخته شد: " + key);
+            toast("لایسنس ساخته شد");
+          }).catch(function (err) { toast(err.message, true); });
+        });
+      });
+      /* گروهی */
+      $("tab-bulk").addEventListener("submit", function (e) {
+        e.preventDefault();
+        var count = parseInt($("bulk-count").value, 10);
+        if (!count || count < 1) { toast("تعداد را درست وارد کنید", true); return; }
+        if (count > 100) { toast("در هر بار حداکثر ۱۰۰ لایسنس می‌توانید بسازید", true); return; }
+        var prefix = $("bulk-prefix").value.trim().toUpperCase().replace(/[^A-Z0-9]/g, "");
+        var note = $("bulk-note").value.trim();
+        var seen = {}, body = [], i;
+        for (i = 0; i < count; i++) {
+          var k = uniqueKey(prefix);
+          while (seen[k]) k = uniqueKey(prefix);
+          seen[k] = true;
+          body.push({ key: k, is_active: true, note: note || null });
+        }
+        var btn = $("btn-create-bulk");
+        busy(btn, "در حال ساخت " + faNum(count) + " لایسنس…", function () {
+          return api("", {
+            method: "POST", body: body,
+            headers: { "Prefer": "return=representation" }
+          }).then(function (data) {
+            var rows = Array.isArray(data) && data.length ? data : body.map(function (b) {
+              return { key: b.key, is_active: true, note: b.note, hwid: null, created_at: new Date().toISOString() };
+            });
+            afterCreate(rows, faNum(rows.length) + " لایسنس گروهی ساخته شد — کلیدها:");
+            logActivity(faNum(rows.length) + " لایسنس به‌صورت گروهی ساخته شد");
+            toast(faNum(rows.length) + " لایسنس ساخته شد");
+          }).catch(function (err) { toast(err.message, true); });
+        });
+      });
+      /* ورود از فایل / متن */
+      function parseImport(text) {
+        var out = [], seen = {};
+        text.split(/\r?\n/).forEach(function (line) {
+          line = line.trim();
+          if (!line) return;
+          var parts = line.split(/[,;\t]/);
+          var key = (parts[0] || "").trim().toUpperCase();
+          var note = parts.slice(1).join(",").trim();
+          if (key.toLowerCase() === "key") return; // سطر عنوان CSV
+          if (!/^[A-Z0-9][A-Z0-9\-_. ]{2,63}$/.test(key)) return;
+          if (seen[key]) return;
+          seen[key] = true;
+          if (licenses.some(function (l) { return l.key === key; })) return;
+          out.push({ key: key, is_active: true, note: note || null });
+        });
+        return out;
+      }
+      $("btn-import").addEventListener("click", function () {
+        var rows = parseImport($("import-text").value);
+        var box = $("import-result");
+        if (!rows.length) {
+          box.className = "form-error";
+          box.textContent = "کلید تازه‌ای برای وارد کردن پیدا نشد (خالی است یا همه از قبل وجود دارند).";
+          return;
+        }
+        var btn = this;
+        busy(btn, "در حال وارد کردن…", function () {
+          return api("?on_conflict=key", {
+            method: "POST", body: rows,
+            headers: { "Prefer": "resolution=ignore-duplicates,return=representation" }
+          }).then(function (data) {
+            var inserted = Array.isArray(data) ? data : rows;
+            inserted.forEach(function (r) { licenses.unshift(r); });
+            renderOverview(); renderList();
+            box.className = "form-ok";
+            box.textContent = faNum(inserted.length) + " کلید با موفقیت وارد شد" +
+              (rows.length !== inserted.length ? " (" + faNum(rows.length - inserted.length) + " کلید تکراری رد شد)" : "") + ".";
+            logActivity(faNum(inserted.length) + " لایسنس از فایل وارد شد");
+            toast("وارد کردن انجام شد");
+          }).catch(function (err) {
+            box.className = "form-error";
+            box.textContent = err.message;
+          });
+        });
+      });
+      $("import-file").addEventListener("change", function () {
+        var f = this.files && this.files[0];
+        if (!f) return;
+        var reader = new FileReader();
+        reader.onload = function () {
+          $("import-text").value = String(reader.result || "");
+          toast("متن فایل بارگذاری شد؛ حالا «وارد کردن کلیدها» را بزنید");
+        };
+        reader.onerror = function () { toast("خواندن فایل نشد", true); };
+        reader.readAsText(f);
+        this.value = "";
+      });
+
+      /* ---------- خروجی ---------- */
+      $("btn-export-csv").addEventListener("click", function () {
+        var rows = filteredRows();
+        if (!rows.length) { toast("چیزی برای خروجی گرفتن نیست", true); return; }
+        downloadFile("licenses.csv", toCSV(rows), "text/csv;charset=utf-8");
+        logActivity("خروجی CSV گرفته شد (" + faNum(rows.length) + " ردیف)");
+        toast("فایل CSV دانلود شد");
+      });
+      $("btn-export-json").addEventListener("click", function () {
+        var rows = filteredRows();
+        if (!rows.length) { toast("چیزی برای خروجی گرفتن نیست", true); return; }
+        downloadFile("licenses-backup.json", JSON.stringify(rows, null, 2), "application/json;charset=utf-8");
+        logActivity("خروجی JSON / پشتیبان گرفته شد (" + faNum(rows.length) + " ردیف)");
+        toast("فایل JSON دانلود شد");
+      });
+      $("btn-copy-all").addEventListener("click", function () {
+        var rows = filteredRows();
+        if (!rows.length) { toast("کلیدی نیست", true); return; }
+        copyText(rows.map(function (l) { return l.key; }).join("\n"), faNum(rows.length) + " کلید کپی شد");
+      });
+
+      /* ---------- بررسی‌کننده ---------- */
+      $("check-form").addEventListener("submit", function (e) {
+        e.preventDefault();
+        var key = $("check-key").value.trim();
+        var box = $("check-result");
+        if (!key) { toast("کلید را وارد کنید", true); return; }
+        var btn = $("btn-check");
+        btn.disabled = true; btn.textContent = "در حال بررسی…";
+        api("?key=eq." + encodeURIComponent(key) + "&select=*")
+          .then(function (data) {
+            var lic = Array.isArray(data) ? data[0] : null;
+            box.classList.remove("hidden");
+            if (!lic) {
+              box.innerHTML = '<div class="verdict bad"><h4>لایسنس معتبر نیست</h4>' +
+                "<p>برنامه مشتری دقیقاً همین پیام را می‌بیند و بسته می‌شود؛ چنین کلیدی در دیتابیس وجود ندارد.</p></div>";
+              return;
+            }
+            if (!lic.is_active) {
+              box.innerHTML = '<div class="verdict bad"><h4>لایسنس غیرفعال است</h4>' +
+                "<p>کلید در دیتابیس هست ولی غیرفعال شده؛ برنامه مشتری باز نمی‌شود.</p>" +
+                verdictDl(lic) + "</div>";
+              return;
+            }
+            box.innerHTML = '<div class="verdict good"><h4>لایسنس معتبر است — برنامه باز می‌شود</h4>' +
+              "<p>" + (lic.hwid
+                ? "این لایسنس روی یک سیستم قفل شده و فقط روی همان سیستم کار می‌کند."
+                : "این لایسنس هنوز روی سیستمی قفل نشده؛ با اولین اجرای مشتری روی سیستم او قفل می‌شود.") + "</p>" +
+              verdictDl(lic) + "</div>";
+          })
+          .catch(function (err) {
+            box.classList.remove("hidden");
+            box.innerHTML = '<div class="verdict bad"><h4>بررسی نشد</h4><p>' + esc(err.message) + "</p></div>";
+          })
+          .then(function () { btn.disabled = false; btn.textContent = "بررسی از دیتابیس"; });
+      });
+      function verdictDl(lic) {
+        return "<dl><dt>توضیح</dt><dd>" + (lic.note ? esc(lic.note) : "—") + "</dd>" +
+          "<dt>سیستم</dt><dd>" + (lic.hwid ? '<span class="mono" dir="ltr" style="font-size:.78rem">' + esc(lic.hwid) + "</span>" : "قفل نشده") + "</dd>" +
+          "<dt>تاریخ ساخت</dt><dd>" + fmtDate(lic.created_at) + "</dd></dl>";
+      }
+
+      /* ---------- منطقه خطر ---------- */
+      function dangerRun(title, rows, verb, fn, logKind) {
+        if (!rows.length) { toast("موردی برای این کار نیست", true); return; }
+        askConfirm(title,
+          faNum(rows.length) + " لایسنس " + verb + ". این کار قابل بازگشت نیست. ادامه می‌دهید؟",
+          "انجام بده", function () {
+            var ids = rows.map(function (l) { return l.id; });
+            runBatch(ids, fn).then(function () {
+              logActivity(title + " — " + faNum(ids.length) + " مورد", logKind || "red");
+              toast("انجام شد");
+              loadLicenses();
+            }).catch(function (err) { toast(err.message, true); loadLicenses(); });
+          }, true);
+      }
+      $("dz-inactive").addEventListener("click", function () {
+        dangerRun("حذف همه غیرفعال‌ها", licenses.filter(function (l) { return !l.is_active; }), "حذف می‌شوند", deleteLic);
+      });
+      $("dz-unbound").addEventListener("click", function () {
+        dangerRun("حذف همه استفاده‌نشده‌ها", licenses.filter(function (l) { return !l.hwid; }), "حذف می‌شوند", deleteLic);
+      });
+      $("dz-release-all").addEventListener("click", function () {
+        dangerRun("آزادسازی همه سیستم‌ها", licenses.filter(function (l) { return l.hwid; }), "از سیستمشان جدا می‌شوند",
+          function (id) { return patchLic(id, { hwid: null }); }, "amber");
+      });
+      $("dz-all").addEventListener("click", function () {
+        dangerRun("حذف همه لایسنس‌ها", licenses.slice(), "همه بدون استثنا حذف می‌شوند", deleteLic);
+      });
+
+      /* ---------- ناوبری بالا ---------- */
+      $("btn-refresh").addEventListener("click", function () {
+        pingConn();
+        loadLicenses();
+      });
+      $("btn-autorefresh").addEventListener("click", function () {
+        var on = this.classList.toggle("on");
+        this.setAttribute("aria-pressed", on ? "true" : "false");
+        clearInterval(autoTimer); autoTimer = null;
+        if (on) {
+          autoTimer = setInterval(function () {
+            if (document.hidden) return;
+            if (!$("modal-back").classList.contains("hidden")) return;
+            if ($("view-main").classList.contains("hidden")) return;
+            loadLicenses(true);
+          }, 45000);
+          toast("به‌روزرسانی خودکار هر ۴۵ ثانیه روشن شد");
+        }
+      });
+
+      /* ---------- ورود با حساب سوپابیس (Supabase Auth) ---------- */
+      /* حساب ثابت پنل — رمز هرگز در کد بررسی نمی‌شود؛ فقط سوپابیس آن را تأیید می‌کند */
+      var LOGIN_EMAIL = "admin@doolrob.local";
+      function authBase() { return settings.url.replace(/\/+$/, "") + "/auth/v1"; }
+      function authRequest(path, body, accessToken) {
+        var h = { "apikey": settings.key, "Content-Type": "application/json" };
+        if (accessToken) h["Authorization"] = "Bearer " + accessToken;
+        return fetch(authBase() + path, {
+          method: "POST", headers: h,
+          body: body !== undefined ? JSON.stringify(body) : undefined
+        }).then(function (res) {
+          return res.text().then(function (text) {
+            var data = null;
+            try { data = text ? JSON.parse(text) : null; } catch (e) { data = null; }
+            if (!res.ok) {
+              var raw = (data && (data.error_description || data.msg || data.message)) || "";
+              if (/invalid login credentials/i.test(raw)) throw new Error("رمز عبور اشتباه است.");
+              if (/email not confirmed/i.test(raw)) throw new Error("ایمیل این حساب هنوز تأیید نشده است.");
+              if (/rate limit|too many/i.test(raw)) throw new Error("تلاش‌های ورود زیاد شده است؛ چند دقیقه صبر کنید و دوباره امتحان کنید.");
+              throw new Error(raw || "ورود انجام نشد (کد " + res.status + ")");
+            }
+            return data;
+          });
+        }).catch(function (err) {
+          if (err instanceof TypeError) throw new Error("اتصال برقرار نشد. اینترنت را بررسی کنید.");
+          throw err;
+        });
+      }
+      function setSession(data, emailFallback) {
+        session = {
+          accessToken: data.access_token,
+          refreshToken: data.refresh_token,
+          email: (data.user && data.user.email) || emailFallback || ""
+        };
+      }
+      function refreshSession() {
+        if (!session || !session.refreshToken) {
+          return Promise.reject(new Error("نشست ورود منقضی شده است؛ دوباره وارد شوید."));
+        }
+        var email = session.email;
+        return authRequest("/token?grant_type=refresh_token", { refresh_token: session.refreshToken })
+          .then(function (data) { setSession(data, email); });
+      }
+      function lockPanel() {
+        var token = session && session.accessToken;
+        session = null;
+        licenses = [];
+        selected = {};
+        clearInterval(autoTimer);
+        autoTimer = null;
+        var auto = $("btn-autorefresh");
+        auto.classList.remove("on");
+        auto.setAttribute("aria-pressed", "false");
+        closeModal();
+        $("login-password").value = "";
+        $("lock-error").classList.add("hidden");
+        showView("view-lock");
+        if (token) authRequest("/logout", undefined, token).catch(function () {});
+        setTimeout(function () { $("login-password").focus(); }, 0);
+      }
+      function enterMain() {
+        if (!session) {
+          showView("view-lock");
+          return;
+        }
+        try { $("proj-host").textContent = new URL(settings.url).host; }
+        catch (e) { $("proj-host").textContent = settings.url; }
+        $("user-email").textContent = session.email || "";
+        showView("view-main");
+        pingConn();
+        loadLicenses();
+      }
+      $("login-form").addEventListener("submit", function (e) {
+        e.preventDefault();
+        var password = $("login-password").value;
+        var err = $("lock-error");
+        if (!password) {
+          err.textContent = "رمز عبور را وارد کنید.";
+          err.classList.remove("hidden");
+          return;
+        }
+        var btn = $("btn-login");
+        btn.disabled = true; btn.textContent = "در حال ورود…";
+        authRequest("/token?grant_type=password", { email: LOGIN_EMAIL, password: password })
+          .then(function (data) {
+            setSession(data, LOGIN_EMAIL);
+            $("login-password").value = "";
+            err.classList.add("hidden");
+            logActivity("ورود به پنل با حساب " + session.email);
+            enterMain();
+          })
+          .catch(function (e2) {
+            err.textContent = e2.message;
+            err.classList.remove("hidden");
+            $("login-password").select();
+          })
+          .then(function () { btn.disabled = false; btn.textContent = "ورود به پنل"; });
+      });
+      $("btn-lock").addEventListener("click", lockPanel);
+      (function init() {
+        session = null;
+        showView("view-lock");
+        setTimeout(function () { $("login-password").focus(); }, 0);
+      })();
+    </script>
+  </body>
+</html>
