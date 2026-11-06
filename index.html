@@ -258,6 +258,10 @@ kbd{font-family:"JetBrains Mono",monospace;font-size:.7rem;color:var(--faint);bo
 .lc-foot .hw{font-family:"JetBrains Mono",monospace;direction:ltr;max-width:190px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .dsec{margin-top:14px}
 .dsec>h4{margin:0 0 8px;font-size:.78rem;color:var(--mut);font-weight:800}
+.dsec>h4 .ibtn{vertical-align:middle}
+.logins{display:flex;flex-direction:column;gap:2px}
+.lrow2{display:flex;gap:10px;align-items:center;justify-content:space-between;padding:7px 10px;border:1px solid var(--stroke);border-radius:10px;background:var(--field);font-size:.82rem}
+.lrow2 .mut{font-size:.78rem}
 .activerow{display:flex;align-items:center;justify-content:space-between;padding:11px 14px;border-radius:16px;background:var(--field);border:1px solid var(--stroke)}
 .dacts{display:flex;gap:6px;flex-wrap:wrap}
 
@@ -676,6 +680,7 @@ function logAct(text, kind) {
 
 /* ---------- Supabase ---------- */
 const apiBase = () => settings.url.replace(/\/+$/, "") + "/rest/v1/licenses";
+const loginsBase = () => settings.url.replace(/\/+$/, "") + "/rest/v1/license_logins";
 function apiErr(data, status) {
   if (status === 401) return "نشست ورود منقضی شده؛ خارج شوید و دوباره وارد شوید.";
   if (data && data.message) {
@@ -687,14 +692,14 @@ function apiErr(data, status) {
   }
   return "خطا در ارتباط با سوپابیس (کد " + status + ")";
 }
-async function api(path, o) {
+async function api(path, o, base) {
   o = o || {};
   if (session && session.expiresAt && Date.now() > session.expiresAt - 30000) { try { await refreshSession(); } catch (e) {} }
   let retried = false;
   for (;;) {
     const headers = Object.assign({ apikey:settings.key, Authorization:"Bearer " + (session ? session.accessToken : settings.key), "Content-Type":"application/json" }, o.headers || {});
     let res;
-    try { res = await fetch(apiBase() + path, { method:o.method || "GET", headers, body:o.body !== undefined ? JSON.stringify(o.body) : undefined }); }
+    try { res = await fetch((base || apiBase()) + path, { method:o.method || "GET", headers, body:o.body !== undefined ? JSON.stringify(o.body) : undefined }); }
     catch (e) { throw new Error("اتصال برقرار نشد. اینترنت را بررسی کنید."); }
     if (res.status === 401 && !retried && session && session.refreshToken) { retried = true; await refreshSession(); continue; }
     const text = await res.text(); let data = null;
@@ -707,6 +712,34 @@ async function ping() {
   const p = $("conn-pill"), t0 = performance.now();
   try { await api("?select=id&limit=1"); p.className = "conn ok"; $("conn-text").textContent = "متصل"; $("conn-ms").textContent = Math.round(performance.now() - t0) + "ms"; }
   catch (e) { p.className = "conn bad"; $("conn-text").textContent = "قطع"; $("conn-ms").textContent = ""; }
+}
+
+/* ---------- تاریخچه ورود (IP + زمان + نسخه) ---------- */
+let detailLogins = [], detailLoginsFor = null, detailLoginsAt = 0, detailLoginsErr = false;
+function loginsHtml() {
+  if (detailLoginsErr) return '<div class="mut" style="font-size:.82rem">تاریخچه بارگذاری نشد.</div>';
+  if (!detailLogins.length) return '<div class="mut" style="font-size:.82rem">هنوز ورودی ثبت نشده.</div>';
+  return '<div class="logins">' + detailLogins.map(r =>
+    '<div class="lrow2"><span class="ltr" style="font-weight:700">' + esc(r.ip || "—") + '</span>' +
+    '<span class="mut">' + esc(fmtDT(r.created_at)) + '</span>' +
+    '<span class="mut">' + esc(r.app_version ? ("نسخه " + r.app_version) : "قدیمی (1.1)") + '</span></div>'
+  ).join("") + '</div>';
+}
+async function refreshLogins(lic, force) {
+  if (!lic || lic.id == null) return;
+  const id = String(lic.id);
+  const stale = Date.now() - detailLoginsAt > 30000;
+  if (!force && detailLoginsFor === id && !stale) { const box = $("d-logins"); if (box) box.innerHTML = loginsHtml(); return; }
+  detailLoginsFor = id; detailLogins = []; detailLoginsErr = false;
+  const box = $("d-logins");
+  if (box) box.innerHTML = '<div class="mut" style="font-size:.82rem">در حال بارگذاری…</div>';
+  try {
+    const rows = await api("?license_id=eq." + encodeURIComponent(id) + "&select=ip,created_at,app_version&order=created_at.desc&limit=20", {}, loginsBase());
+    if (detailLoginsFor !== id) return;
+    detailLogins = Array.isArray(rows) ? rows : []; detailLoginsAt = Date.now();
+  } catch (e) { if (detailLoginsFor === id) detailLoginsErr = true; }
+  if (detailLoginsFor !== id) return;
+  const b2 = $("d-logins"); if (b2) b2.innerHTML = loginsHtml();
 }
 const authBase = () => settings.url.replace(/\/+$/, "") + "/auth/v1";
 async function authReq(path, body, token) {
@@ -960,7 +993,9 @@ function renderDetail(force) {
     '<div class="dsec dacts">' +
       (lic.hwid ? '<button class="btn sm" data-d="release">' + ic("unlink") + "آزادسازی سیستم</button>" : "") +
       '<button class="btn sm" data-d="dup">' + ic("dup") + "ساخت کپی</button>" +
-      '<button class="btn sm bad" data-d="del">' + ic("trash") + "حذف</button></div>";
+      '<button class="btn sm bad" data-d="del">' + ic("trash") + "حذف</button></div>" +
+    '<div class="dsec"><h4>تاریخچه ورود (IP) <button class="ibtn sm" data-d="logins" title="به‌روزرسانی" aria-label="به‌روزرسانی تاریخچه">↻</button></h4><div id="d-logins"></div></div>';
+  refreshLogins(lic);
 }
 function renderAll() { reindex(); renderOverview(); renderList(); if (curView === "licenses") renderDetail(true); if (curView === "tools") renderOverview(); }
 
@@ -1034,6 +1069,7 @@ $("detail-body").addEventListener("click", e => {
   const act = b.getAttribute("data-d");
   if (act === "close") openSheet(false);
   else if (act === "copy") copyText(lic.key, "کلید کپی شد");
+  else if (act === "logins") refreshLogins(lic, true);
   else if (act === "toggle") setActive(lic, !lic.is_active);
   else if (act === "ext") { const base = Math.max(Date.now(), expT(lic) || 0); setExpiry(lic, new Date(base + parseInt(b.getAttribute("data-h"), 10) * 3600000).toISOString(), "لایسنس تمدید شد"); }
   else if (act === "life") setExpiry(lic, null, "لایسنس مادام‌العمر شد");
